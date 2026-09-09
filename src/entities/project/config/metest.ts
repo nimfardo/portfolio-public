@@ -53,8 +53,12 @@ export const metest = {
         logoAlt: 'Metest',
         logoWidth: 305,
         // Metest's brand yellow, painted on the card in Figma as a raw value
-        // — not a token, same as defenceSystems's #0472FF card.
+        // — not a token, same as defenceSystems's #0472FF card. The divider, label and
+        // arrow go near-black on it rather than LinkCards' default cream:
+        // sampled off the canvas (3274:2454), all three are obsidian-amber-950,
+        // with the divider that colour at 50%.
         background: '#feb913',
+        foreground: 'var(--color-obsidian-amber-950)',
         label: 'metest.ee',
         href: 'https://metest.ee',
       },

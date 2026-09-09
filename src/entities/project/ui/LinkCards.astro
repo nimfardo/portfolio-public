@@ -33,7 +33,7 @@ const { cards, class: className } = Astro.props;
           href={card.href}
           target="_blank"
           rel="noopener noreferrer"
-          style={`background: ${card.background}`}
+          style={`background: ${card.background}; --link-card-fg: ${card.foreground ?? 'var(--color-obsidian-amber-50)'}`}
         >
           <span class="link-cards__media">
             <img src={card.logo} alt={card.logoAlt} width={card.logoWidth} loading="lazy" />
@@ -95,26 +95,37 @@ const { cards, class: className } = Astro.props;
   }
   /* Divider + label + arrow sit directly on the card's fixed brand
      background (same as the border above), so — bug found in light mode,
-     2026-08-09 — they must stay pinned to the cream primitive too instead
-     of the theme-flipping emphasis tokens; those tokens go near-black in
-     light mode and nearly disappear against the dark/blue card faces. */
+     2026-08-09 — they must stay pinned instead of using the theme-flipping
+     emphasis tokens; those tokens go near-black in light mode and nearly
+     disappear against the dark/blue card faces.
+
+     Which pinned colour is the card's own choice (`--link-card-fg`, set
+     inline from LinkCard.foreground), not a constant: cream is right on
+     defenceSystems's gradient and medicalSoftware's two blues, and wrong on Metest's bright
+     #feb913, which draws all three in obsidian-amber-950 on canvas.
+
+     The divider is that same colour at 50%, measured off both cards'
+     canvases (defenceSystems 2458:1924, Metest 3274:2454 — cream and near-black
+     respectively, both landing at exactly a=0.5 over their own face). It
+     used to be hardcoded at full opacity, which was wrong on every card;
+     fixing it here moved defenceSystems's and medicalSoftware's dividers too. */
   .link-cards__footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin: 0 40px 40px;
     padding-top: 40px;
-    border-top: 1px solid var(--color-obsidian-amber-50);
+    border-top: 1px solid color-mix(in srgb, var(--link-card-fg) 50%, transparent);
   }
   .link-cards__label {
     font-family: var(--font-family-body);
     font-size: var(--font-size-xl);
     line-height: var(--font-line-height-xl);
     font-weight: var(--font-weight-bold);
-    color: var(--color-obsidian-amber-50);
+    color: var(--link-card-fg);
   }
   :global(.link-cards__arrow) {
-    color: var(--color-obsidian-amber-50);
+    color: var(--link-card-fg);
     transition: transform var(--duration-base) var(--ease-fade);
   }
   @media (prefers-reduced-motion: reduce) {

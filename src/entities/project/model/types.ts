@@ -151,6 +151,14 @@ export interface LinkCard {
   logoWidth: number;
   /** CSS background for the whole card face. */
   background: string;
+  /** Divider, label and arrow colour. Defaults to the cream primitive,
+   * which is right on the dark card faces (defenceSystems's gradient, medicalSoftware's two
+   * blues) but not on a bright one — Metest's #feb913 card draws all three
+   * in obsidian-amber-950 on canvas. Like `background`, this must be a
+   * pinned raw value or a *primitive* var, never a semantic token: the card
+   * face doesn't flip with the theme, so a foreground that did would go
+   * near-invisible in one of them (bug-040). */
+  foreground?: string;
   label: string;
   href: string;
 }
