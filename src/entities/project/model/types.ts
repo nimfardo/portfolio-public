@@ -216,7 +216,10 @@ export interface ProjectContent {
   };
   challenge?: BlocksSection | StatementSection;
   process?: ProcessStep[] | BlocksSection;
-  deliverables?: BlocksSection;
+  /** Same two-variant split `challenge` already has: media blocks, or a bare
+   * statement when the canvas gives the section nothing but a sentence
+   * (Metest, node 2997:2564 — heading + one line, no image). */
+  deliverables?: BlocksSection | StatementSection;
   build?: BuildData;
   video?: { src: string; poster: string; alt: string };
   gallery?: GalleryRow[];

@@ -5,6 +5,7 @@ import { connectis } from './connectis';
 import { medicalSoftware } from './medicalSoftware';
 import { enterpriseIt } from './enterpriseIt';
 import { logofolio } from './logofolio';
+import { metest } from './metest';
 import { defenceSystems } from './defenceSystems';
 import { motion } from './motion';
 import { socialVideo } from './socialVideo';
@@ -25,6 +26,7 @@ export const PROJECT_CONTENT: Record<string, ProjectContent> = {
   'medical-software': medicalSoftware,
   'enterprise-it': enterpriseIt,
   logofolio,
+  metest,
   'military-systems': defenceSystems,
   motion,
   'social-media-app': socialVideo,

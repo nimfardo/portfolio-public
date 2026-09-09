@@ -21,7 +21,10 @@ interface Props {
 const { cards, class: className } = Astro.props;
 ---
 
-<ul class:list={['link-cards', className]}>
+<ul
+  class:list={['link-cards', className]}
+  style={`--link-cards-columns: ${Math.min(cards.length, 2)}`}
+>
   {
     cards.map((card) => (
       <li class="link-cards__item">
@@ -48,7 +51,11 @@ const { cards, class: className } = Astro.props;
 <style>
   .link-cards {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    /* Column count follows the card count, capped at 2 — defenceSystems and medicalSoftware
+       ship a pair and are unchanged, while Metest's lone metest.ee card runs
+       the full 1071px column width the canvas gives it (node 3274:2454)
+       instead of sitting in a half-width cell with dead space beside it. */
+    grid-template-columns: repeat(var(--link-cards-columns, 2), 1fr);
     gap: 24px;
     margin: 0;
     padding: 0;

@@ -45,6 +45,12 @@ const challengeStatement = challenge && !('blocks' in challenge) ? challenge : u
 const processSteps = Array.isArray(content?.process) ? content.process : undefined;
 const processBlocks =
   content?.process && !Array.isArray(content.process) ? content.process : undefined;
+// Deliverables splits the same way as challenge above (Metest is the first
+// page whose canvas gives that section a sentence and no media).
+const deliverables = content?.deliverables;
+const deliverablesBlocks = deliverables && 'blocks' in deliverables ? deliverables : undefined;
+const deliverablesStatement =
+  deliverables && !('blocks' in deliverables) ? deliverables : undefined;
 ---
 
 <Layout title={`${meta.name} — Max Shturma`} noindex={isGated}>
@@ -94,11 +100,19 @@ const processBlocks =
               <ContentSection heading={processBlocks.heading} blocks={processBlocks.blocks} />
             )}
 
-            {content.deliverables && (
+            {deliverablesBlocks && (
               <ContentSection
-                heading={content.deliverables.heading}
-                blocks={content.deliverables.blocks}
+                heading={deliverablesBlocks.heading}
+                blocks={deliverablesBlocks.blocks}
               />
+            )}
+            {deliverablesStatement && (
+              <OverviewSection
+                heading={deliverablesStatement.heading}
+                description={deliverablesStatement.description}
+              >
+                {deliverablesStatement.text}
+              </OverviewSection>
             )}
 
             {content.build && (

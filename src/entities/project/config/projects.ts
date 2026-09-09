@@ -34,9 +34,11 @@ import type { Project } from '../model/types';
  * the 5 NDA cards it also means the grid no longer names the client at all.
  * Each label was pulled from that project's own overview.tags[0] ("the
  * domain slot", per art-annanolli.ts's own comment) where content exists;
- * MeTest had none (no metest.ts — "No Content Yet" state) and was confirmed
- * directly by Max (steel-plate cutting / metal fabrication, serving metal,
- * construction and shipbuilding industries). Khvyliasti is a deliberate
+ * MeTest had none at the time (no metest.ts — "No Content Yet" state) and was
+ * confirmed directly by Max (steel-plate cutting / metal fabrication, serving
+ * metal, construction and shipbuilding industries). Its case study has since
+ * landed and config/metest.ts's own tags[0] is the same "Metal Fabrication",
+ * so the label now matches the rule the rest of the grid follows. Khvyliasti is a deliberate
  * exception — also no written content, and Max chose to keep the brand name
  * rather than guess a domain off its logo alone. Don't silently "fix" that
  * inconsistency or invent a domain for it without asking him.
