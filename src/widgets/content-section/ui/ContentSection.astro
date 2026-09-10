@@ -33,6 +33,7 @@ const { heading, blocks, class: className } = Astro.props;
               src={block.media.image}
               alt={block.media.imageAlt}
               loading="lazy"
+              data-media-skeleton
             />
           ) : (
             <Media

@@ -44,7 +44,13 @@ const { heading, image, tags, list, description, features, linkCards, class: cla
     {
       image &&
         (image.type === 'image' ? (
-          <img class="overview-section__image" src={image.image} alt={image.imageAlt} loading="lazy" />
+          <img
+            class="overview-section__image"
+            src={image.image}
+            alt={image.imageAlt}
+            loading="lazy"
+            data-media-skeleton
+          />
         ) : (
           <Media type="video" class="overview-section__image" src={image.src} poster={image.poster} alt={image.alt} />
         ))

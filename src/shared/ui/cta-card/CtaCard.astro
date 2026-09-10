@@ -42,7 +42,7 @@ const isExternal = external ?? href.startsWith('http');
   target={isExternal ? '_blank' : undefined}
   rel={isExternal ? 'noopener noreferrer' : undefined}
 >
-  <img src={image} alt={imageAlt} class="cta-card__image" />
+  <img src={image} alt={imageAlt} class="cta-card__image" data-media-skeleton />
   {scrim && <div class="cta-card__scrim"></div>}
   <div class="cta-card__content">
     <p class="cta-card__heading">{heading}</p>

@@ -4,6 +4,7 @@ export type { Breakpoint } from './breakpoints';
 export { initScrollReveal, staggerDelay } from './scroll-reveal';
 export { initAccordionGroup } from './accordion';
 export { initCountUp } from './count-up';
+export { initMediaSkeleton } from './media-skeleton';
 export { bindOncePersisted } from './bind-once';
 export {
   isNdaUnlocked,

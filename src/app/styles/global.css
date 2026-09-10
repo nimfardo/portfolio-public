@@ -170,3 +170,42 @@ svg {
     transition: none;
   }
 }
+
+/* Media skeleton primitive (shared/lib/media-skeleton.ts). The class is added
+   by JS, never shipped in the markup, so a cached image — `complete` before
+   the script runs — never gets it and never flashes grey.
+
+   The background sits on the <img> itself rather than on a wrapper because
+   in most consumers the <img> IS the sized box: `.content-section__image`,
+   `.process-step__image` and friends carry the aspect-ratio directly, and
+   only ProjectCard/ProjectHero/about wrap theirs. Painting behind the
+   replaced content works in either arrangement and needs no extra element,
+   so no consumer had to change shape to get this.
+
+   Grey lands immediately; the sweep waits --duration-base so a load that
+   resolves quickly shows a flat fill rather than a half-second of strobe. */
+@keyframes media-skeleton-sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -150% 0;
+  }
+}
+img[data-media-skeleton].is-media-loading {
+  background-color: var(--color-bg-muted);
+  /* --color-bg-elevated rather than a hardcoded white/rgba: the palette is
+     warm in dark and neutral in light, and a fixed sheen colour would read
+     as a grey smear over the brown. */
+  background-image: linear-gradient(90deg, transparent, var(--color-bg-elevated), transparent);
+  background-size: 150% 100%;
+  background-repeat: no-repeat;
+  animation: media-skeleton-sweep 1.4s var(--ease-fade) var(--duration-base) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  img[data-media-skeleton].is-media-loading {
+    /* Fill stays — it's the part that says "something belongs here". Only
+       the sweep goes. */
+    animation: none;
+  }
+}

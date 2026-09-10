@@ -51,6 +51,7 @@ const { rows, class: className } = Astro.props;
             alt={row.image.imageAlt}
             loading="lazy"
             data-reveal
+            data-media-skeleton
           />
         ) : row.image.type === 'video' ? (
           <div class="project-gallery__full" data-reveal>
@@ -86,6 +87,7 @@ const { rows, class: className } = Astro.props;
                 alt={slot.imageAlt}
                 loading="lazy"
                 data-reveal
+                data-media-skeleton
               />
             ) : slot.type === 'video' ? (
               <div class="project-gallery__pair-item" data-reveal>
@@ -117,6 +119,7 @@ const { rows, class: className } = Astro.props;
               alt={row.tall.imageAlt}
               loading="lazy"
               data-reveal
+              data-media-skeleton
             />
           ) : row.tall.type === 'video' ? (
             <div class="project-gallery__tall" data-reveal>
@@ -150,6 +153,7 @@ const { rows, class: className } = Astro.props;
                   alt={slot.imageAlt}
                   loading="lazy"
                   data-reveal
+                  data-media-skeleton
                   style={`--reveal-delay: ${staggerDelay(i, 100)}`}
                 />
               ) : slot.type === 'video' ? (

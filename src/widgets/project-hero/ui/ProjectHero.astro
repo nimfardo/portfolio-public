@@ -41,7 +41,16 @@ const hasCard = Boolean(eyebrow && headline);
       },
     ]}
   >
-    {media?.type === 'image' && <img class="project-hero__image" src={media.image} alt={media.imageAlt} />}
+    {
+      media?.type === 'image' && (
+        <img
+          class="project-hero__image"
+          src={media.image}
+          alt={media.imageAlt}
+          data-media-skeleton
+        />
+      )
+    }
     {
       media?.type === 'video' && (
         <Media

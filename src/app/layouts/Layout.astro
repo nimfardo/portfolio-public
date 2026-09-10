@@ -141,18 +141,34 @@ const { title, hideNav = false, noindex = false } = Astro.props;
       <slot />
     </div>
     <script>
-      import { initScrollReveal, initCountUp, initCvRole } from '@shared/lib';
+      import { initScrollReveal, initCountUp, initCvRole, initMediaSkeleton } from '@shared/lib';
       // `astro:page-load` fires once for the real initial load and again
       // after every ClientRouter swap — top-level module scripts only ever
       // run once, so anything that needs to see the *new* page's content
       // (new [data-reveal] elements) has to hang off this event instead.
       document.addEventListener('astro:page-load', initScrollReveal);
       document.addEventListener('astro:page-load', initCountUp);
+      // ⚠ Called DIRECTLY here, not only on the event, and that is the whole
+      // difference between this working and doing nothing at all.
+      // `astro:page-load` fires at `window.load` — measured at 10.6s into a
+      // throttled /projects/logofolio, by which point every eager image had
+      // already decoded. Registering only the listener meant the skeleton
+      // could never appear on a first page load, which is the one case it
+      // exists for. This top-level call runs when the deferred module
+      // executes (~2.4s in that same trace, right after parse, images in the
+      // DOM and still in flight); the listener below then covers ClientRouter
+      // swaps, where the module never re-runs.
+      initMediaSkeleton();
+      document.addEventListener('astro:page-load', initMediaSkeleton);
       // An NDA project page has no [data-reveal] or counter elements at
       // page-load — they arrive as decrypted markup when the password gate
       // opens (bug-073). PasswordGate fires `nda:unlocked` once injected.
       document.addEventListener('nda:unlocked', initScrollReveal);
       document.addEventListener('nda:unlocked', initCountUp);
+      // Load-bearing for the same reason: a gated page's images don't exist
+      // at page-load, so without this line every NDA project's media skips
+      // the skeleton entirely.
+      document.addEventListener('nda:unlocked', initMediaSkeleton);
       // Also re-derives the CV button's href each swap, so a role picked up
       // from a `?for=` param on one page keeps applying on every other page
       // even though its own URL carries no such param.

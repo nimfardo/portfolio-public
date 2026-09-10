@@ -67,7 +67,7 @@ const videoFallbackSrc = type === 'video' ? src.replace(/\.webm$/i, '.mp4') : un
     )
   }
 
-  {type === 'gif' && <img src={src} alt={alt} loading="lazy" />}
+  {type === 'gif' && <img src={src} alt={alt} loading="lazy" data-media-skeleton />}
 
   {
     type === 'video' && (

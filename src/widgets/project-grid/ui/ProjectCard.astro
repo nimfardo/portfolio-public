@@ -18,7 +18,12 @@ const { project, revealDelay, eager } = Astro.props;
   style={revealDelay ? `--reveal-delay: ${revealDelay}` : undefined}
 >
   <div class="project-card__media">
-    <img src={project.thumbnail} alt={project.name} loading={eager ? undefined : 'lazy'} />
+    <img
+      src={project.thumbnail}
+      alt={project.name}
+      loading={eager ? undefined : 'lazy'}
+      data-media-skeleton
+    />
     {
       project.access === 'nda' && (
         <div class="project-card__nda-plate" data-nda-mask>

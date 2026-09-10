@@ -48,6 +48,7 @@ const { steps } = Astro.props;
               src={step.media.image}
               alt={step.media.imageAlt}
               loading="lazy"
+              data-media-skeleton
             />
           )}
           {step.media?.type === 'video' && (
