@@ -26,19 +26,21 @@
 //     frames, so it lands on a 1.00s loop at a sixth of the path data, and it
 //     still contains one spark detachment.
 //
-// Reads from roughly 40px up. Below that the side notches and the tip
-// disappear and it goes to a blob, which is why the default is 48 rather than
-// the icon set's 28/32 — a solid mark needs more mass than the line glyph it
-// replaced to hold the centre of that 128px ring.
+// Holds down to about 32px; below that the side notches and the detached
+// spark stop registering and it reads as a plain blob. 34 is Max's call for
+// the ring, sized against the real circle-doodle rather than in isolation —
+// an earlier note here claimed a ~40px floor and a 48 default, which was
+// measured for reading the notches on their own and was contradicted by the
+// only real usage.
 import { FLAME_FRAMES, FLAME_FPS } from './frames';
 
 interface Props {
-  /** Rendered box in px. Default 48; see the legibility floor above. */
+  /** Rendered box in px. Default 34; see the legibility floor above. */
   size?: number;
   class?: string;
 }
 
-const { size = 48, class: className } = Astro.props;
+const { size = 34, class: className } = Astro.props;
 
 // The @keyframes below hardcodes its cutoff for a 24-frame loop. Percentage
 // keyframe selectors reject calc() and var(), so that window genuinely cannot
@@ -80,9 +82,19 @@ const duration = FLAME_FRAMES.length / FLAME_FPS;
      own rule and the winner would depend on stylesheet bundling order
      (bug-002). Omitting it leaves exactly one real `color` declaration in
      play — the container's. */
+  /* overflow: visible because the trace fitted the viewBox to the flame's
+     BODY on purpose — including the detached spark in the fit inflated the
+     box and shrank the flame ~9% inside its own frame. The cost of that
+     choice is that the spark reaches about 1 unit past the top of the box on
+     frames 14 and 15, and an SVG root clips to its viewport by default, so
+     without this those two frames rendered with the spark cut off flat.
+     Note for future callers: the spark can therefore paint just outside this
+     element's box. Free in a 128px ring with ~45px of clear space above it,
+     not free in a tight container. */
   .animated-flame {
     display: block;
     flex-shrink: 0;
+    overflow: visible;
   }
   /* Each frame is opaque for exactly one slot of the cycle, offset by its
      index. A literal duration, not a token: tokens.css's durations are all

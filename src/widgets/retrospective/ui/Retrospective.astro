@@ -39,7 +39,7 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
     }
     <div class="retrospective__mark">
       <span class="retrospective__mark-ring" set:html={circleDoodle} />
-      <AnimatedFlame size={48} />
+      <AnimatedFlame class="retrospective__flame" />
     </div>
   </div>
 </section>
@@ -64,6 +64,15 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
      parent's default align-items:stretch — Figma has it fixed at 320px. */
   :global(.retrospective__button) {
     align-self: flex-start;
+  }
+  /* The mark sits a touch above the ring's centre (Max's call, measured off
+     his mockup) — the ring itself stays optically centred and does not move.
+     :global for the same reason the button above needs it: this class lands
+     on AnimatedFlame's own <svg>, which carries that component's astro-cid
+     rather than this one's, so a scoped selector would never match it. */
+  :global(.retrospective__flame) {
+    position: relative;
+    top: -6px;
   }
   .retrospective__mark {
     position: relative;
