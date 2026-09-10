@@ -4,6 +4,7 @@ export { default as Divider } from './divider/Divider.astro';
 export { default as Link } from './link/Link.astro';
 export { default as Logo } from './logo/Logo.astro';
 export { default as AnimatedLogo } from './logo/AnimatedLogo.astro';
+export { default as AnimatedFlame } from './animated-flame/AnimatedFlame.astro';
 export { default as LoadingIndicator } from './loading-indicator/LoadingIndicator.astro';
 export { default as Icon } from './icon/Icon.astro';
 export type { IconName } from './icon/icons';

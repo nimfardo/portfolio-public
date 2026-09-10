@@ -1,0 +1,127 @@
+---
+// The animated fire mark. Currently the glyph inside Retrospective's
+// "Thanks for Scrolling" ring, replacing the static conifer that sat there
+// (which the icon set carries under the `smile` key — the key is named for
+// the slot, not for the drawing).
+//
+// 24 baked drawings swapped with CSS `steps()`. No Lottie, no player, no JS.
+// That is the whole reason this exists as SVG rather than as a Lottie export
+// like AnimatedLogo: Lottie bakes its fill colors at export time and can't
+// follow a CSS custom property, so the logo needs one JSON per theme
+// (max-logo.json + max-logo-light.json, see AnimatedLogo's header). Every
+// frame here is `fill="currentColor"`, so the mark inherits whatever its
+// container sets and inverts across themes on its own, one asset.
+//
+// Provenance — the frames are auto-traced from uploads/fire-reference.gif,
+// and two numbers in that trace are worth recording because both were got
+// wrong first:
+//   - Threshold 100. The source's luminance histogram is bimodal with a dead
+//     zone between 72 and 111; 100 sits in that valley and traces the flame.
+//     Cutting lower traces the GLOW HALO around the flame instead, which
+//     comes out a featureless pear — that was the first attempt.
+//   - Frames 73-96 of the 144-frame source. Consecutive frames in that clip
+//     overlap at a median IoU of 0.9125, so any pair matching at least that
+//     well is by definition an invisible cut; 73 against 97 matches at
+//     0.9326, tighter than an average frame step. The excerpt is exactly 24
+//     frames, so it lands on a 1.00s loop at a sixth of the path data, and it
+//     still contains one spark detachment.
+//
+// Reads from roughly 40px up. Below that the side notches and the tip
+// disappear and it goes to a blob, which is why the default is 48 rather than
+// the icon set's 28/32 — a solid mark needs more mass than the line glyph it
+// replaced to hold the centre of that 128px ring.
+import { FLAME_FRAMES, FLAME_FPS } from './frames';
+
+interface Props {
+  /** Rendered box in px. Default 48; see the legibility floor above. */
+  size?: number;
+  class?: string;
+}
+
+const { size = 48, class: className } = Astro.props;
+
+// The @keyframes below hardcodes its cutoff for a 24-frame loop. Percentage
+// keyframe selectors reject calc() and var(), so that window genuinely cannot
+// be derived from the frame count at runtime — fail loudly rather than
+// silently desync if the trace is ever regenerated at a different length.
+if (FLAME_FRAMES.length !== 24) {
+  const slot = 100 / FLAME_FRAMES.length;
+  throw new Error(
+    `AnimatedFlame: the keyframes assume 24 frames, got ${FLAME_FRAMES.length}. ` +
+      `Update the @keyframes cutoff to just under ${slot.toFixed(4)}% too — see the ` +
+      `comment there for why it must not be exactly one slot.`,
+  );
+}
+
+const duration = FLAME_FRAMES.length / FLAME_FPS;
+---
+
+<svg
+  class:list={['animated-flame', className]}
+  width={size}
+  height={size}
+  viewBox="0 0 28 28"
+  aria-hidden="true"
+  style={`--flame-dur:${duration}s;--flame-n:${FLAME_FRAMES.length}`}
+>
+  {
+    FLAME_FRAMES.map((d, i) => (
+      <g class="animated-flame__frame" style={`--flame-i:${i}`}>
+        <path d={d} fill="currentColor" />
+      </g>
+    ))
+  }
+</svg>
+
+<style>
+  /* No `color` declared here on purpose, same reasoning Icon.astro's header
+     spells out: a consumer passing `class="foo"` merges onto this SAME
+     element, so an explicit `color` here would tie in specificity with their
+     own rule and the winner would depend on stylesheet bundling order
+     (bug-002). Omitting it leaves exactly one real `color` declaration in
+     play — the container's. */
+  .animated-flame {
+    display: block;
+    flex-shrink: 0;
+  }
+  /* Each frame is opaque for exactly one slot of the cycle, offset by its
+     index. A literal duration, not a token: tokens.css's durations are all
+     sub-second UI transitions and none fits a multi-second decorative loop —
+     same precedent as Retrospective's own 45s ring spin. */
+  .animated-flame__frame {
+    opacity: 0;
+    animation: animated-flame-swap var(--flame-dur) steps(1, end) infinite;
+    animation-delay: calc(var(--flame-dur) * var(--flame-i) / var(--flame-n));
+  }
+  /* 4.1666%, deliberately a hair under one slot's 100/24 = 4.1667%. At exactly
+     the slot boundary `steps(1, end)` resolves the outgoing frame as still
+     visible while the incoming one is already visible, so two drawings paint
+     stacked and the mark visibly thickens. That is not a rounding curiosity:
+     41.667ms slots and 16.667ms paints align every 83.3ms, so it hit 11 of
+     every 60 painted frames (measured). Trimming the window by 0.7µs makes the
+     intervals disjoint — the gap is far too small for a paint to land in, and
+     the aligned boundaries now resolve to exactly one frame. */
+  @keyframes animated-flame-swap {
+    0% {
+      opacity: 1;
+    }
+    4.1666% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  /* Frame 0 is a legitimate drawing of the flame at rest, so it stands in as
+     the still frame directly — unlike the stroked variant, this mark has no
+     separate static original to fall back to. */
+  @media (prefers-reduced-motion: reduce) {
+    .animated-flame__frame {
+      animation: none;
+      opacity: 0;
+    }
+    .animated-flame__frame:first-of-type {
+      opacity: 1;
+    }
+  }
+</style>
