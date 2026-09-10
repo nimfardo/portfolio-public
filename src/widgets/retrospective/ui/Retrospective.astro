@@ -1,6 +1,6 @@
 ---
 import circleDoodle from './circle-doodle.svg?raw';
-import { Button, Icon, Heading } from '@shared/ui';
+import { Button, AnimatedFlame, Heading } from '@shared/ui';
 
 interface Props {
   heading: string;
@@ -37,9 +37,9 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
         </Button>
       )
     }
-    <div class="retrospective__smile">
-      <span class="retrospective__smile-ring" set:html={circleDoodle} />
-      <Icon name="smile" size={32} />
+    <div class="retrospective__mark">
+      <span class="retrospective__mark-ring" set:html={circleDoodle} />
+      <AnimatedFlame size={48} />
     </div>
   </div>
 </section>
@@ -65,7 +65,7 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
   :global(.retrospective__button) {
     align-self: flex-start;
   }
-  .retrospective__smile {
+  .retrospective__mark {
     position: relative;
     display: flex;
     align-items: center;
@@ -74,18 +74,21 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
     height: 128px;
     color: var(--color-icon-default);
   }
-  .retrospective__smile-ring {
+  .retrospective__mark-ring {
     position: absolute;
     inset: 0;
     display: flex;
-    /* Slow continuous spin on the ring's text path — the smile icon it
-       surrounds stays static/centered. No token fits a multi-second
+    /* Slow continuous spin on the ring's lettering — the mark it surrounds
+       stays centred and never rotates. It does animate now (AnimatedFlame
+       runs its own 1.00s frame loop), but that is the mark's business, not
+       the ring's; the two loops are independent on purpose and their periods
+       are deliberately unrelated. No token fits a multi-second
        decorative loop (tokens.css's durations are all sub-second UI
        transitions), so this is a literal value scoped to this component,
        same precedent as the hero scroll-cue's bounce animation. */
     animation: retrospective-ring-spin 45s linear infinite;
   }
-  .retrospective__smile-ring :global(svg) {
+  .retrospective__mark-ring :global(svg) {
     display: block;
     width: 100%;
     height: 100%;
@@ -96,7 +99,7 @@ const { heading, behanceUrl, linkLabel, linkHref } = Astro.props;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .retrospective__smile-ring {
+    .retrospective__mark-ring {
       animation: none;
     }
   }
