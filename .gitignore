@@ -76,3 +76,7 @@ tmp/
 
 # XML task gate sentinel (created on task approval, deleted after commit)
 .claude/gate-open
+
+# 6.8MB design reference for AnimatedFlame; traced into
+# src/shared/ui/animated-flame/frames.ts, deliberately not tracked
+uploads/fire-reference.gif

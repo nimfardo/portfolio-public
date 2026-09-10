@@ -12,9 +12,15 @@
 // frame here is `fill="currentColor"`, so the mark inherits whatever its
 // container sets and inverts across themes on its own, one asset.
 //
-// Provenance — the frames are auto-traced from uploads/fire-reference.gif,
-// and two numbers in that trace are worth recording because both were got
-// wrong first:
+// Provenance — the frames are auto-traced from a reference GIF Max supplied,
+// `fire-reference.gif`. **That source is deliberately NOT in the repo** (6.8MB,
+// untracked and gitignored under uploads/), and neither is the tracing
+// pipeline, which was scratch-only. So these frames are effectively not
+// reproducible from this repository alone: changing the mark means re-tracing
+// from Max's copy of the GIF, rebuilding threshold detection, contour tracing,
+// corner-aware smoothing and the seamless-subloop search. The two numbers
+// below are recorded precisely because they are the part that would otherwise
+// be lost, and both were got wrong first:
 //   - Threshold 100. The source's luminance histogram is bimodal with a dead
 //     zone between 72 and 111; 100 sits in that valley and traces the flame.
 //     Cutting lower traces the GLOW HALO around the flame instead, which
