@@ -82,7 +82,15 @@ const currentPath = Astro.url.pathname;
   </button>
 </header>
 
-<div id="mobile-nav-overlay" class="nav-mobile-overlay" data-mobile-nav-overlay transition:persist>
+<div
+  id="mobile-nav-overlay"
+  class="nav-mobile-overlay"
+  data-mobile-nav-overlay
+  role="dialog"
+  aria-modal="true"
+  aria-label="Menu"
+  transition:persist
+>
   <div class="nav-mobile-overlay__top">
     <a href="/" aria-label="Home">
       <Logo size={40} />
@@ -289,13 +297,41 @@ const currentPath = Astro.url.pathname;
     z-index: 950;
     padding: 12px 20px 40px;
     background: var(--color-bg-default);
+    /* Phone LANDSCAPE is still below 1024px, so it gets this overlay — and
+       the content column (three 48px items + the CV + the social row + the
+       theme row, at 32px gaps) runs to ~530px against a ~375px-high
+       viewport. Unscrollable, the theme toggle sat off-screen with nothing
+       that could reach it. `contain` stops a flick that hits the end here
+       from chaining to the page behind. */
+    overflow-y: auto;
+    overscroll-behavior: contain;
     opacity: 0;
+    /* `pointer-events: none` hides the closed menu from the mouse but NOT
+       from the keyboard or a screen reader: it stays `display: flex` below
+       1024px, so Tab off the hamburger used to walk into eight invisible
+       controls (and could flip the theme from a menu that isn't on screen).
+       `visibility` removes it from both.
+
+       The 0s-plus-delay pair is what keeps the fade-out intact: opening
+       flips visibility immediately (no delay) so the fade-in is visible and
+       `closeButton.focus()` has something focusable to land on, while
+       closing holds `visible` for the full 250ms and only then hides. Not
+       `visibility 0.25s` — a discrete property's flip point mid-transition
+       is spec detail to lean on, and at progress 0 it is still the OLD
+       value, which is exactly the frame the open handler focuses in. */
+    visibility: hidden;
     pointer-events: none;
-    transition: opacity 0.25s ease;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s linear 0.25s;
   }
   .nav-mobile-overlay[data-open] {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
+    transition:
+      opacity 0.25s ease,
+      visibility 0s linear 0s;
   }
 
   @media (min-width: 1024px) {
@@ -309,8 +345,13 @@ const currentPath = Astro.url.pathname;
     }
   }
 
+  /* `flex-shrink: 0` on the two fixed rows: once the content column
+     overflows a short landscape viewport, these are the first things
+     flexbox compresses, and squashing the row that holds the close button
+     is the worst possible answer. Pixel-neutral whenever there's room. */
   .nav-mobile-overlay__top {
     display: flex;
+    flex-shrink: 0;
     align-items: center;
     justify-content: space-between;
     height: 64px;
@@ -395,6 +436,7 @@ const currentPath = Astro.url.pathname;
 
   .nav-mobile-overlay__footer {
     display: flex;
+    flex-shrink: 0;
     justify-content: center;
     padding-top: var(--spacing-lg);
     margin-top: var(--spacing-lg);

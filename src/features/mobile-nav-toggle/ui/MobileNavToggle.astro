@@ -1,43 +1,132 @@
 ---
 // No markup of its own — wires up open/close behavior for the elements
 // widgets/navigation renders: [data-mobile-nav-trigger] opens
-// [data-mobile-nav-overlay], [data-mobile-nav-close] and a backdrop click
-// or Escape close it. Kept as its own feature slice (the "verb" is
-// toggling the mobile nav) even though it has no visual output.
+// [data-mobile-nav-overlay]. It closes on [data-mobile-nav-close], Escape,
+// a click on any link inside it, any navigation it didn't start itself, and
+// crossing up to the laptop breakpoint. Kept as its own feature slice (the
+// "verb" is toggling the mobile nav) even though it has no visual output.
 ---
 
 <script>
-  import { bindOncePersisted } from '@shared/lib';
+  import { bindOncePersisted, BREAKPOINTS } from '@shared/lib';
+
+  // Takes both elements as parameters rather than closing over the query
+  // result: the handlers below are hoisted function declarations, which TS
+  // won't narrow a captured `const` for, and a `wire(trigger, overlay)`
+  // signature beats sprinkling `overlay!` through every one of them.
+  function wire(trigger: HTMLElement, overlay: HTMLElement) {
+    const closeButton = overlay.querySelector<HTMLElement>('[data-mobile-nav-close]');
+    const desktop = window.matchMedia(`(min-width: ${BREAKPOINTS.laptop}px)`);
+
+    // The attribute is the single source of truth rather than a local
+    // boolean — CSS keys off the same one, so the two can't disagree.
+    const isOpen = () => overlay.hasAttribute('data-open');
+
+    function open() {
+      if (isOpen()) return;
+      overlay.setAttribute('data-open', 'true');
+      trigger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+      // Move the keyboard into the menu; it would otherwise stay on the
+      // trigger, one Tab away from the page the menu is covering.
+      //
+      // The offsetWidth read is load-bearing, not a stray statement:
+      // `focus()` on an element still inside a `visibility: hidden` subtree
+      // is a SILENT no-op, and setting the attribute above only queues the
+      // style recalc. Reading a layout value flushes it first. (Measured —
+      // without this, focus stayed on the trigger.)
+      void overlay.offsetWidth;
+      closeButton?.focus();
+    }
+
+    function close() {
+      if (!isOpen()) return;
+      // Read this BEFORE hiding: the overlay goes `visibility: hidden`, and
+      // focus inside a hidden subtree collapses to <body>, losing the
+      // keyboard's place. Only restore when focus is actually in here, so an
+      // `astro:after-swap` close can't steal it from the new page.
+      const restoreFocus = overlay.contains(document.activeElement);
+      overlay.removeAttribute('data-open');
+      trigger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+      if (restoreFocus) trigger.focus();
+    }
+
+    trigger.addEventListener('click', open);
+    closeButton?.addEventListener('click', close);
+
+    // Tapping a link has to dismiss the menu, and navigation alone does not
+    // do it: Navigation is `transition:persist`, so a ClientRouter swap hands
+    // the new page this same node with `data-open` and the body scroll lock
+    // still set — the menu stays up over a page that already changed
+    // underneath it. Hooking the LINK rather than the swap also covers the
+    // three cases where no swap happens at all: the CV and the socials (new
+    // tab), and the current page's own entry.
+    overlay.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      // Deliberately not the theme toggle — that's a setting, not a
+      // destination, and closing the menu out from under it would hide the
+      // thing it just changed.
+      if (target.closest('a[href]') || target === overlay) close();
+    });
+
+    // Anything that navigated without a click in here — the back/forward
+    // buttons, most of all — still has to leave the menu closed.
+    document.addEventListener('astro:after-swap', close);
+
+    document.addEventListener('keydown', (event) => {
+      // Guarded on open state: unguarded, every Escape anywhere on the site
+      // cleared `body.style.overflow` and rewrote aria-expanded.
+      if (!isOpen()) return;
+      if (event.key === 'Escape') {
+        close();
+      } else if (event.key === 'Tab') {
+        trapFocus(event);
+      }
+    });
+
+    // Resizing or rotating past 1024px hides the overlay outright (`display:
+    // none !important`). Without this the body scroll lock survives into a
+    // view with no visible control left to release it, and the desktop page
+    // simply won't scroll.
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) close();
+    });
+
+    // The menu covers the viewport, so Tab must not walk out of it onto the
+    // controls underneath. No inputs live in here, so links and buttons are
+    // the whole focusable set; re-queried per keypress because the CV link
+    // and the theme toggle both change over a session.
+    function trapFocus(event: KeyboardEvent) {
+      const focusable = Array.from(
+        overlay.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      const outside = !overlay.contains(active);
+      if (event.shiftKey && (active === first || outside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (active === last || outside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  }
 
   // The trigger/overlay/close elements live inside Navigation's persisted
   // (transition:persist) containers, so they're the same DOM nodes across
   // every client-side navigation — bindOncePersisted skips repeat
-  // `astro:page-load` fires, or clicks would stack duplicate listeners.
+  // `astro:page-load` fires, or clicks would stack duplicate listeners. The
+  // document- and matchMedia-level listeners in wire() are bound in there
+  // for the same reason.
   function initMobileNavToggle() {
     bindOncePersisted<HTMLElement>('[data-mobile-nav-trigger]', (trigger) => {
       const overlay = document.querySelector<HTMLElement>('[data-mobile-nav-overlay]');
-      const closeButton = document.querySelector<HTMLElement>('[data-mobile-nav-close]');
-
-      function open() {
-        overlay?.setAttribute('data-open', 'true');
-        trigger.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
-      }
-
-      function close() {
-        overlay?.removeAttribute('data-open');
-        trigger.setAttribute('aria-expanded', 'false');
-        document.body.style.overflow = '';
-      }
-
-      trigger.addEventListener('click', open);
-      closeButton?.addEventListener('click', close);
-      overlay?.addEventListener('click', (event) => {
-        if (event.target === overlay) close();
-      });
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') close();
-      });
+      if (overlay) wire(trigger, overlay);
     });
   }
 

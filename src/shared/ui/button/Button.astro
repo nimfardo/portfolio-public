@@ -89,7 +89,16 @@ const iconSize = size === 'sm' ? 20 : 28;
        would shrink PasswordGate's short "Enter" label from 320 to 240 on
        another page. A library value that moves shipped pixels elsewhere is not
        worth the tidiness. */
-    min-width: 320px;
+    /* `min(320px, 100%)`, not a bare 320px: min-width is resolved AFTER
+       max-width in the box algorithm, so a flat floor here wins over any
+       `max-width: 100%` a caller adds and the button simply hangs out of the
+       page. On a 320px-wide phone the content column is 272px, so five pages
+       panned sideways by 24px. This clamps to the container only where the
+       container is narrower than the floor, so every md button on every
+       route measured pixel-identical at 390/480/768/1024/1440 — the sole
+       exception being /system's gallery cells, whose 310px column the
+       buttons were overhanging rather than fitting. */
+    min-width: min(320px, 100%);
     padding: var(--spacing-md) var(--spacing-lg);
     font-size: var(--font-size-lg);
     line-height: var(--font-line-height-lg);
