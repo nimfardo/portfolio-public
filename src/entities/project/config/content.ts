@@ -3,6 +3,7 @@ import { artAnnanolli } from './art-annanolli';
 import { arvus } from './arvus';
 import { connectis } from './connectis';
 import { medicalSoftware } from './medicalSoftware';
+import { khvyliasti } from './khvyliasti';
 import { enterpriseIt } from './enterpriseIt';
 import { logofolio } from './logofolio';
 import { metest } from './metest';
@@ -25,6 +26,7 @@ export const PROJECT_CONTENT: Record<string, ProjectContent> = {
   connectis,
   'medical-software': medicalSoftware,
   'enterprise-it': enterpriseIt,
+  khvyliasti,
   logofolio,
   metest,
   'military-systems': defenceSystems,

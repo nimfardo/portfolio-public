@@ -26,9 +26,14 @@ import type { Project } from '../model/types';
  * name-TBD projects — copy-deck.md marks these explicitly TBD pending Max.
  * ProjectCard renders without that row when absent.
  *
- * `name` here is the GRID CARD label only — [slug].astro reads the real
- * brand name from each project's own PROJECT_CONTENT.name instead, so
- * changing this field never touches the actual case-study page. As of
+ * `name` is the label for the grid card AND for the case-study page it links
+ * to: [slug].astro feeds it to both `<title>` and `PageHeader` (lines 56/58).
+ * This comment used to claim the opposite — that the page read the brand name
+ * from PROJECT_CONTENT.name and that editing this field was grid-only — which
+ * was false and stayed uncorrected through the 2026-08-31 relabel. Nothing
+ * reads PROJECT_CONTENT.name anywhere in src/; each config carries it as a
+ * record of the real brand, not as rendered output. Editing a name here DOES
+ * retitle a live page, so treat it as page copy. As of
  * 2026-08-31 (copy-035) these are deliberately domain/industry labels, not
  * brand names — clearer for a first-time visitor scanning the grid, and for
  * the 5 NDA cards it also means the grid no longer names the client at all.
@@ -38,10 +43,13 @@ import type { Project } from '../model/types';
  * confirmed directly by Max (steel-plate cutting / metal fabrication, serving
  * metal, construction and shipbuilding industries). Its case study has since
  * landed and config/metest.ts's own tags[0] is the same "Metal Fabrication",
- * so the label now matches the rule the rest of the grid follows. Khvyliasti is a deliberate
- * exception — also no written content, and Max chose to keep the brand name
- * rather than guess a domain off its logo alone. Don't silently "fix" that
- * inconsistency or invent a domain for it without asking him.
+ * so the label now matches the rule the rest of the grid follows. Khvyliasti
+ * was the last exception for the same reason — no written content, and Max
+ * chose the brand name over a domain guessed off its logo alone. Its case
+ * study landed 2026-09-11 and config/khvyliasti.ts's tags[0] is "E-commerce",
+ * so the guess is gone and the label follows the rule too; Max approved the
+ * switch rather than it being applied silently. Every label on this grid is
+ * now a domain, with no exception left to preserve.
  */
 export const PROJECTS: Project[] = [
   {
@@ -139,7 +147,7 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: 'khvyliasti',
-    name: 'Khvyliasti',
+    name: 'E-commerce',
     access: 'public',
     thumbnail: '/media/khvyliasti/thumbnail.jpg',
   },
