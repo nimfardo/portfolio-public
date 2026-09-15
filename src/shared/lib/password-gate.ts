@@ -43,6 +43,13 @@ export interface NdaPayload {
 // sessionStorage, so it dies with the tab.
 const SESSION_KEY = 'nda-key';
 
+// One-shot announcement flag for the unlock toast (widgets/nda-unlock-toast).
+// Deliberately NOT the same signal as SESSION_KEY: that one answers "is this
+// session unlocked", which stays true for the rest of the tab's life, so a
+// toast keyed off it would fire on every single return to the grid. This one
+// answers "has the reader been told yet", and reading it clears it.
+const TOAST_KEY = 'nda-unlock-toast';
+
 // Lockout state lives in localStorage, not sessionStorage — a 2h lockout
 // that resets the moment the tab closes wouldn't do anything. Same ceiling
 // as the gate itself: this deters casual guessing, it doesn't stop anyone
@@ -160,6 +167,7 @@ export async function tryUnlockNda(
 
   if (html !== null) {
     sessionStorage.setItem(SESSION_KEY, bytesToBase64(keyBytes));
+    sessionStorage.setItem(TOAST_KEY, '1');
     localStorage.removeItem(ATTEMPTS_KEY);
     localStorage.removeItem(LOCKED_UNTIL_KEY);
     return html;
@@ -173,4 +181,20 @@ export async function tryUnlockNda(
     localStorage.setItem(ATTEMPTS_KEY, String(attempts));
   }
   return null;
+}
+
+/**
+ * Whether a fresh unlock is still waiting to be announced. True exactly once
+ * per unlock — the act of reading it clears the flag.
+ *
+ * Only `tryUnlockNda` arms this. `decryptWithStoredKey` deliberately does not:
+ * that is the resume path, taken when a gated page is opened or reloaded after
+ * the unlock already happened, and arming it there would re-announce an unlock
+ * the reader performed several pages ago.
+ */
+export function consumeNdaUnlockToast(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pending = sessionStorage.getItem(TOAST_KEY) !== null;
+  if (pending) sessionStorage.removeItem(TOAST_KEY);
+  return pending;
 }

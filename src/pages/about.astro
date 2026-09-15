@@ -416,9 +416,9 @@ const mediaRows: AboutMediaRow[] = [
 <style>
   /* :global() — the class merges onto PageHeader's own rendered element, which
      carries PageHeader.astro's astro-cid, not this page's. */
-  :global(.about__header) {
-    padding: 0 40px;
-  }
+  /* The 40px side gutter that used to live here moved into PageHeader
+     itself (feat-159) — it has to own its own box for the sticky backdrop to
+     span the content width. */
 
   .about {
     padding-bottom: 160px;

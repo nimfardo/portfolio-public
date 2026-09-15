@@ -14,3 +14,4 @@ export {
 } from './password-gate';
 export type { NdaPayload } from './password-gate';
 export { initCvRole } from './cv-role';
+export { initScrollState } from './scroll-state';

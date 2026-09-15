@@ -1,0 +1,256 @@
+---
+// Marks the moment the NDA gate comes off, once per unlock.
+//
+// Before this, unlocking was silent: `tryUnlockNda` stored the key, and on the
+// next visit to the grid ProjectGrid's `syncNdaMasks()` quietly stripped the
+// confidential plates. The reader got the access with no acknowledgement that
+// anything had changed site-wide.
+//
+// The trigger is a consume-on-read flag, not the unlock state itself — see
+// `consumeNdaUnlockToast` in shared/lib/password-gate.ts for why those have to
+// be two different signals. This widget is rendered by the page, not by
+// ProjectGrid, so the grid's other consumer (/system's ComponentGallery) never
+// fires it.
+---
+
+<div class="nda-toast" data-nda-toast hidden role="status" aria-live="polite">
+  {
+    /* Rebuilt from shared/ui/icon/svg/locker.svg's real geometry rather than
+      redrawn, so the resting frame is that icon to the pixel:
+
+        body    outer 3,12->25,26 against inner 5,14->23,24, i.e. a 2px stroke
+                on the 4,13 20x12 centreline rect
+        shackle outer r=7 / inner r=5 about (14,9), i.e. a centreline r=6 arc
+                at stroke-width 2, legs ending flat at y=12 (linecap: butt)
+        slot    the filled 13,18 2x4 rect, unchanged
+
+      Split into separate elements ONLY because they animate independently.
+      `overflow: visible` because the shackle leaves the 28 box when it swings.
+
+      One colour, `currentColor` throughout, so the mark follows the theme with
+      no second asset — the AnimatedFlame lesson. */
+  }
+  <svg
+    class="nda-toast__lock"
+    width="32"
+    height="32"
+    viewBox="0 0 28 28"
+    fill="none"
+    aria-hidden="true"
+  >
+    <g class="nda-toast__body">
+      <rect x="4" y="13" width="20" height="12" stroke="currentColor" stroke-width="2"></rect>
+      <rect class="nda-toast__slot" x="13" y="18" width="2" height="4" fill="currentColor"></rect>
+    </g>
+    <path
+      class="nda-toast__shackle"
+      d="M8 12V9a6 6 0 0 1 12 0v3"
+      stroke="currentColor"
+      stroke-width="2"></path>
+  </svg>
+  <p class="nda-toast__text">Unlocked — every confidential project is open.</p>
+</div>
+
+<script>
+  import { consumeNdaUnlockToast } from '@shared/lib';
+
+  // Long enough to read eleven words twice; short enough that it is gone
+  // before anyone reaches for it. Nothing here is interactive.
+  const HOLD_MS = 4500;
+  // Matches --duration-base, which the leaving animation uses. Kept as a
+  // number because setTimeout can't read a custom property.
+  const EXIT_MS = 350;
+
+  let holdTimer: number | undefined;
+  let exitTimer: number | undefined;
+
+  function clearTimers() {
+    window.clearTimeout(holdTimer);
+    window.clearTimeout(exitTimer);
+  }
+
+  function initNdaUnlockToast() {
+    const toast = document.querySelector<HTMLElement>('[data-nda-toast]');
+    if (!toast) return;
+
+    // Consume-on-read: this returns true exactly once per unlock, so a second
+    // visit to this page in the same session is silent.
+    if (!consumeNdaUnlockToast()) return;
+
+    clearTimers();
+    // Everything inside is `display: none` until this line — which is what
+    // starts the whole animation timeline, keyframe delays included, at the
+    // moment the toast appears rather than at page load.
+    toast.removeAttribute('hidden');
+
+    holdTimer = window.setTimeout(() => {
+      toast.classList.add('nda-toast--leaving');
+      exitTimer = window.setTimeout(() => {
+        toast.setAttribute('hidden', '');
+        toast.classList.remove('nda-toast--leaving');
+      }, EXIT_MS);
+    }, HOLD_MS);
+  }
+
+  document.addEventListener('astro:page-load', initNdaUnlockToast);
+  // A ClientRouter swap destroys this element, so a surviving timer would fire
+  // against a detached node. Harmless, but there is no reason to leave it
+  // running.
+  document.addEventListener('astro:before-swap', clearTimers);
+</script>
+
+<style>
+  .nda-toast {
+    position: fixed;
+    /* Bottom LEFT, not the conventional right: ScrollToTop already owns the
+       bottom-right corner (fixed, 48px inset, 60x60). It is invisible at the
+       top of the page, so the two never collide on arrival — but the toast
+       holds for 4.5s and the button fades in the moment the reader scrolls.
+       The left corner is clear of it, and clear of the 153px desktop nav. */
+    left: var(--spacing-lg);
+    bottom: var(--spacing-lg);
+    /* Over ScrollToTop (500), under the mobile nav header (900) and its
+       overlay (950) — a toast must never cover the menu that dismisses it. */
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    max-width: calc(100vw - 48px);
+    padding: var(--spacing-md) var(--spacing-lg);
+    /* Square. Nothing on this site is rounded except the theme toggle. */
+    background: var(--color-bg-muted);
+    border: 1px solid var(--color-border-accent);
+    /* Purely an announcement — it must never eat a card click underneath. */
+    pointer-events: none;
+    animation: nda-toast-in var(--duration-base) var(--ease-reveal) both;
+  }
+
+  @media (min-width: 1024px) {
+    .nda-toast {
+      /* Past the fixed 153px sidebar, then the page's own 40px gutter. */
+      left: 193px;
+      bottom: 40px;
+      max-width: 420px;
+    }
+  }
+
+  .nda-toast--leaving {
+    animation: nda-toast-out var(--duration-base) var(--ease-fade) both;
+  }
+
+  .nda-toast__text {
+    margin: 0;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-sm);
+    color: var(--color-text-primary);
+  }
+
+  .nda-toast__lock {
+    flex-shrink: 0;
+    overflow: visible;
+    color: var(--color-icon-accent);
+  }
+  .nda-toast__shackle {
+    /* Flat leg ends, as in the icon. */
+    stroke-linecap: butt;
+    /* fill-box, or the origin resolves against the whole SVG viewport in
+       WebKit and the shackle swings from the wrong pivot. The path's geometry
+       box is x 8..20 / y 3..12, so 100% 100% IS the right leg's base (20,12) —
+       the hinge a real padlock turns on. */
+    transform-box: fill-box;
+    transform-origin: 100% 100%;
+    animation: nda-toast-shackle 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) 0.68s both;
+  }
+  .nda-toast__slot {
+    /* The slot's own box is 13..15 / 18..22, so 50% 50% is its centre (14,20). */
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: nda-toast-slot 0.3s var(--ease-fade) 0.35s both;
+  }
+  .nda-toast__body {
+    animation: nda-toast-click 0.12s var(--ease-fade) 0.6s both;
+  }
+
+  @keyframes nda-toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes nda-toast-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  /* The key, implied. Turning the slot reads as the turn without putting a
+     second glyph in a 32px box. */
+  @keyframes nda-toast-slot {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(90deg);
+    }
+  }
+  /* The click: half a pixel down and back. Below the threshold of "something
+     moved", above the threshold of "something happened". */
+  @keyframes nda-toast-click {
+    0%,
+    100% {
+      transform: none;
+    }
+    50% {
+      transform: translateY(0.5px);
+    }
+  }
+  /* Clockwise about the right leg — in SVG's y-down space that is what lifts
+     the LEFT leg out of the body, which is the way a padlock actually opens.
+     The easing overshoots past 30deg and settles back; that spring is the
+     entire flourish and there is deliberately nothing else. */
+  @keyframes nda-toast-shackle {
+    from {
+      transform: none;
+    }
+    to {
+      transform: translateY(-1.5px) rotate(30deg);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .nda-toast {
+      max-width: calc(100vw - 32px);
+      left: var(--spacing-md);
+      bottom: var(--spacing-md);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* The toast and its 4.5s hold stay — the message is the point. Only the
+       movement goes, so the lock arrives already open rather than opening. */
+    .nda-toast,
+    .nda-toast--leaving {
+      animation: none;
+    }
+    .nda-toast__body {
+      animation: none;
+    }
+    .nda-toast__slot {
+      animation: none;
+      transform: rotate(90deg);
+    }
+    .nda-toast__shackle {
+      animation: none;
+      transform: translateY(-1.5px) rotate(30deg);
+    }
+  }
+</style>

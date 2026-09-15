@@ -257,9 +257,28 @@ const currentPath = Astro.url.pathname;
     inset: 0 0 auto 0;
     height: 64px;
     padding: 12px 20px;
-    background: var(--color-bg-default);
-    border-bottom: 1px solid var(--color-border-default);
     z-index: 900;
+    /* Same frosted treatment as the desktop PageHeader (feat-159) — see that
+       file for why the blur is unconditional and only the tint animates, and
+       why both values are color-mixed off the theme token rather than pinned.
+       This header was a solid --color-bg-default with a permanent hairline;
+       it now starts transparent and earns both on scroll, so the top of a
+       page reads as one surface instead of a band across the hero. */
+    background: color-mix(in srgb, var(--color-bg-default) 0%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease;
+  }
+  :global(html[data-scrolled]) .nav-mobile-header {
+    background: color-mix(in srgb, var(--color-bg-default) 72%, transparent);
+    border-bottom-color: var(--color-border-default);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-mobile-header {
+      transition: none;
+    }
   }
   /* The logo anchors are plain inline elements around an inline-flex span,
      so the line box adds descender space below the glyph — the logo box

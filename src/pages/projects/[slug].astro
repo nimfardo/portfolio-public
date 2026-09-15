@@ -167,9 +167,9 @@ const deliverablesStatement =
      column narrower than the full-bleed hero above ~1900px viewports,
      which read as misaligned even though it was mathematically symmetric
      (bug-012, 2026-07-28). */
-  :global(.project-page__header) {
-    padding: 0 40px;
-  }
+  /* The 40px side gutter that used to live here moved into PageHeader
+     itself (feat-159) — it has to own its own box for the sticky backdrop to
+     span the content width. */
   .project-page__sections {
     display: flex;
     flex-direction: column;

@@ -2,18 +2,36 @@
 import Layout from '@app/layouts/Layout.astro';
 import { PageHeader } from '@widgets/page-header';
 import { ProjectGrid } from '@widgets/project-grid';
+import { NdaUnlockToast } from '@widgets/nda-unlock-toast';
 ---
 
 <Layout title="Max Shturma — Portfolio">
   <main class="home">
     <PageHeader title="Projects" />
-    <ProjectGrid />
+    <div class="home__grid">
+      <ProjectGrid />
+    </div>
   </main>
+
+  {/* Fixed-position and self-dismissing: outside <main> so the page's own
+      padding never applies to it. Fires only after a fresh NDA unlock. */}
+  <NdaUnlockToast />
 </Layout>
 
 <style>
+  /* The side gutter sits on the grid, not on <main> (feat-159). It used to
+     be on <main> and therefore inset the PageHeader too — which is fine for a
+     header in flow, but a sticky one has to own its box edge-to-edge or its
+     backdrop floats as an inset slab instead of spanning the content width.
+     PageHeader carries its own 40px now; this only dresses the grid.
+
+     Only the horizontal padding moved. The vertical stays on <main> so the
+     header's own top margin still measures from the same place. */
   .home {
-    padding: var(--spacing-xl) 40px;
+    padding-block: var(--spacing-xl);
+  }
+  .home__grid {
+    padding-inline: 40px;
   }
 
   /* PageHeader owns its own 40px top margin at this breakpoint (bug-012) —
@@ -25,11 +43,11 @@ import { ProjectGrid } from '@widgets/project-grid';
   }
 
   /* Max's call: 40px side gutters were eating too much of a phone screen —
-     16px lets each card run noticeably bigger. */
+     16px lets each card run noticeably bigger. PageHeader is display:none
+     below 1024px, so this never fought it. */
   @media (max-width: 767px) {
-    .home {
-      padding-left: 16px;
-      padding-right: 16px;
+    .home__grid {
+      padding-inline: 16px;
     }
   }
 </style>

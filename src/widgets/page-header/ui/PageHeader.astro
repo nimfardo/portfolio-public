@@ -59,13 +59,77 @@ const { title, showBack = false, backHref = '/', class: className } = Astro.prop
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 48px;
-      /* 40px top+bottom — Figma's real gap on both Home and CONNECTIS
-         (`header` instance sits at y=40 on both frames, and the next
-         element starts exactly 40px after it), not the 48px --spacing-2xl
-         token (bug-012, 2026-07-28). */
-      margin-top: 40px;
-      margin-bottom: 40px;
+      /* Pinned to the top on scroll (feat-159). `sticky`, not `fixed`: it
+         keeps its place in flow, so nothing needs a compensating offset and
+         no page had to learn the header's height. Works because no ancestor
+         scrolls or clips — checked; the only `overflow: hidden` in
+         global.css is .visually-hidden. */
+      position: sticky;
+      top: 0;
+      /* Above content and the ScrollToTop button (500), below the mobile
+         header (900) and the overlay (950) — which never coexist with this
+         anyway, since this component stops rendering below 1024px. */
+      z-index: 800;
+
+      /* ── Vertical box, and why these numbers ──────────────────────────
+         Figma's real gap on both Home and CONNECTIS is 40px above and below
+         the 48px header (`header` instance at y=40, next element exactly
+         40px after), NOT the 48px --spacing-2xl token (bug-012).
+
+         Once the bar is sticky it needs its own padding, or the backdrop
+         hugs the type with content running right up to the viewport edge.
+         The 40px is therefore SPLIT — 24px margin plus 16px padding — so
+         the resting layout is byte-identical to before (24 + 16 = 40 on
+         each side) while the stuck bar gets a 16px interior. Change one of
+         these three and the other two have to move with it.
+
+         `box-sizing: border-box` is global, so `height` here is the OUTER
+         box: 48px of content plus the two 16px pads. Writing `height: 48px`
+         and adding padding would have crushed the content band to 16px. */
+      height: calc(48px + 2 * var(--spacing-md));
+      padding-block: var(--spacing-md);
+      /* The 40px side gutter lives here now, not on each page (feat-159).
+         Five pages set `:global(.x__header) { padding: 0 40px }` and Home
+         inset the whole <main> instead, which meant the header's own box was
+         full-bleed on five pages and already inset on the sixth — so a
+         backdrop painted on this element would have spanned the content
+         width in five places and floated as a slab in one. One owner. */
+      padding-inline: 40px;
+      margin-top: var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+
+      /* ── The backdrop ────────────────────────────────────────────────
+         Nothing at rest; a tint over a blur once the page moves. Both the
+         tint and the hairline are derived from theme tokens through
+         color-mix rather than pinned as two hexes, so this flips with the
+         theme like every other surface and there is no second palette to
+         keep in step.
+
+         The blur is declared unconditionally and the TINT is what animates.
+         `backdrop-filter` cannot transition from `none` to a value — it
+         snaps — and toggling it on scroll also makes the browser promote and
+         drop a layer mid-scroll, which is exactly when it cannot afford to.
+         Left on, it is a no-op while the tint is transparent, because a blur
+         of a flat page background is that same flat colour. */
+      background: color-mix(in srgb, var(--color-bg-default) 0%, transparent);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid transparent;
+      transition:
+        background-color 0.25s ease,
+        border-color 0.25s ease;
+    }
+    /* `data-scrolled` is set on <html> by shared/lib/scroll-state.ts past
+       8px. 72% keeps the bar reading as glass rather than a solid strip —
+       at 100% the blur is invisible and it is just a bar, below ~60% the
+       type loses its footing over a busy hero. */
+    :global(html[data-scrolled]) .page-header {
+      background: color-mix(in srgb, var(--color-bg-default) 72%, transparent);
+      border-bottom-color: var(--color-border-default);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .page-header {
+        transition: none;
+      }
     }
     .page-header__title-group {
       display: flex;

@@ -141,7 +141,13 @@ const { title, hideNav = false, noindex = false } = Astro.props;
       <slot />
     </div>
     <script>
-      import { initScrollReveal, initCountUp, initCvRole, initMediaSkeleton } from '@shared/lib';
+      import {
+        initScrollReveal,
+        initCountUp,
+        initCvRole,
+        initMediaSkeleton,
+        initScrollState,
+      } from '@shared/lib';
       // `astro:page-load` fires once for the real initial load and again
       // after every ClientRouter swap — top-level module scripts only ever
       // run once, so anything that needs to see the *new* page's content
@@ -173,6 +179,7 @@ const { title, hideNav = false, noindex = false } = Astro.props;
       // from a `?for=` param on one page keeps applying on every other page
       // even though its own URL carries no such param.
       document.addEventListener('astro:page-load', initCvRole);
+      document.addEventListener('astro:page-load', initScrollState);
     </script>
   </body>
 </html>

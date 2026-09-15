@@ -55,9 +55,9 @@ const unsplashProfileUrl = `https://unsplash.com/@${UNSPLASH_USERNAME}?${UNSPLAS
      extracted into a shared partial. One other user of this exact CSS
      doesn't earn a new shared file yet; if a third project-shaped page
      shows up, that's the point to factor it out. */
-  :global(.project-page__header) {
-    padding: 0 40px;
-  }
+  /* The 40px side gutter that used to live here moved into PageHeader
+     itself (feat-159) — it has to own its own box for the sticky backdrop to
+     span the content width. */
   .project-page__sections {
     display: flex;
     flex-direction: column;
