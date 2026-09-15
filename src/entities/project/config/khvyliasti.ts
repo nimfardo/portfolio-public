@@ -73,7 +73,7 @@ export const khvyliasti = {
     // renders these uppercase so its own casing carries no information.
     tags: [
       'E-commerce',
-      'Solo UX/UI designer',
+      'Solo product designer',
       'Research · Wireframes · Prototype · Hi-fi Designs · Adaptive · Testing · Design System',
       '2024',
     ],

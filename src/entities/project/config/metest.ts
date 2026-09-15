@@ -67,7 +67,7 @@ export const metest = {
     // card), slot 2 the role, slot 3 the scope, slot 4 the year.
     tags: [
       'Metal Fabrication',
-      'Solo UX/UI designer',
+      'Solo product designer',
       'Research · Wireframes · Prototype · Adaptive · Motion · Testing',
       '2021',
     ],

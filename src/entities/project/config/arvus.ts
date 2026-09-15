@@ -40,14 +40,17 @@ export const arvus = {
     text: 'Arvus is a browser-based PSIM console — cameras, sensors, and access control in one operator view.',
     // Slot 1 is the domain, matching CONNECTIS ('Logistics') and medicalSoftware
     // ('Medical') — copy-012 corrected it from 'PSIM System', which named the
-    // product category instead. Slot 2 is NOT the code pages' 'design engineer':
-    // Arvus shipped no code, so that title would overclaim. It reads 'UX/UI
-    // designer' rather than copy-012's 'product designer' because Max has no
-    // deep product-design expertise (identity.md, Positioning) — and under the
-    // narrowed rule there, UX/UI is legal as depth, just never as the headline.
+    // product category instead. Slot 2 read 'Solo UX/UI designer' until
+    // copy-045 (2026-09-15), on the reasoning that identity.md barred the
+    // Product Designer title outright. That bar is retired — see that file's
+    // Positioning section — so the slot now says what the work was: Max ran
+    // the research and the specs with the Product Owner, no PM in between,
+    // which is product design whatever the contract called it. It is still
+    // NOT the code pages' 'design engineer': Arvus shipped no code, and that
+    // title would overclaim.
     tags: [
       'Security',
-      'Solo UX/UI designer',
+      'Solo product designer',
       'Research · Wireframes · Brand · Prototype · Testing · Design system',
       '2023–2024',
     ],

@@ -39,7 +39,7 @@ export const connectis = {
     text: 'CONNECTIS replaces spreadsheets and phone calls with one command center for fleet operators.',
     tags: [
       'Logistics',
-      'Solo design engineer',
+      'Solo product designer',
       'Research · UX/UI · Brand · Prototype · Motion',
       '2026',
     ],
