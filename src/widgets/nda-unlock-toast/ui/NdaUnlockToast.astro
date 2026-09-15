@@ -140,7 +140,12 @@
       toast.classList.add('nda-toast--leaving');
       exitTimer = window.setTimeout(() => {
         toast.setAttribute('hidden', '');
-        toast.classList.remove('nda-toast--leaving');
+        // The leaving class deliberately STAYS. `.nda-toast` carries
+        // `animation: nda-toast-in ... both`, so removing it re-applies the
+        // entrance and its fill parks the element at opacity 1 — which is
+        // exactly how the toast used to fade back in after it had gone.
+        // Keeping the class makes the exit's end state the resting state. It
+        // only ever shows once per session, so there is nothing to reset for.
       }, EXIT_MS);
     }, HOLD_MS);
   }
@@ -209,6 +214,16 @@
       bottom: 40px;
       max-width: min(420px, calc(100vw - 193px));
     }
+  }
+
+  /* Explicit override, the same trap ProjectCard's nda-plate documents: this
+     component's own `display: flex` outranks the UA stylesheet's
+     `[hidden] { display: none }`, because ANY author rule beats the UA sheet.
+     Without this line the attribute hides nothing — measured, 59 samples with
+     the attribute set and `display: flex` computed — and the toast kept
+     painting after its exit had finished. */
+  .nda-toast[hidden] {
+    display: none;
   }
 
   /* 400ms, and EXIT_MS in the script above must stay equal to it. Longer and
