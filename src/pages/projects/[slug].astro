@@ -77,6 +77,13 @@ const deliverablesStatement =
               {content.overview.text}
             </OverviewSection>
 
+            {content.outcomes && (
+              <OutcomesSection
+                heading={content.outcomes.heading}
+                stats={content.outcomes.stats}
+              />
+            )}
+
             {challengeBlocks && (
               <ContentSection heading={challengeBlocks.heading} blocks={challengeBlocks.blocks} />
             )}
@@ -114,13 +121,6 @@ const deliverablesStatement =
               >
                 {deliverablesStatement.text}
               </OverviewSection>
-            )}
-
-            {content.outcomes && (
-              <OutcomesSection
-                heading={content.outcomes.heading}
-                stats={content.outcomes.stats}
-              />
             )}
 
             {content.build && (

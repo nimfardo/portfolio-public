@@ -269,8 +269,9 @@ export interface ProjectContent {
    * (Metest, node 2997:2564 — heading + one line, no image). */
   deliverables?: BlocksSection | StatementSection;
   build?: BuildData;
-  /** Renders between Deliverables and Build — what I made, then what it
-   * changed, then the evidence. */
+  /** Renders second on every page: directly under `overview`, above
+   * `challenge`. Results-first, so the figures are visible without
+   * scrolling. */
   outcomes?: OutcomesData;
   video?: { src: string; poster: string; alt: string };
   gallery?: GalleryRow[];
