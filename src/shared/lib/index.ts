@@ -11,6 +11,7 @@ export {
   tryUnlockNda,
   decryptWithStoredKey,
   getLockoutRemainingMs,
+  consumeNdaUnlockToast,
 } from './password-gate';
 export type { NdaPayload } from './password-gate';
 export { initCvRole } from './cv-role';
