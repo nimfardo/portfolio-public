@@ -170,6 +170,20 @@ export const connectis = {
     ],
     githubUrl: 'https://github.com/nimfardo/glacier-flow',
   },
+  // Outcomes sit AFTER Deliverables and BEFORE Build, so the page reads
+  // "what I made -> what it changed -> how it was built". The two figures in
+  // `build.stats` above stay where they are: 394 commits and a 76 KB bundle
+  // are craft metrics about the build, and they belong beside the build
+  // footage, not in a section about what the product did for the operator.
+  outcomes: {
+    heading: 'Outcomes',
+    stats: [
+      { value: '68', unit: '%', label: 'Faster incident triage, 7.9 → 2.4 min' },
+      { value: '92', unit: '%', label: 'Task success, up from 58%' },
+      { value: '31', unit: '%', label: 'Fewer vehicle-off-road days' },
+    ],
+    note: 'Triage and task success from moderated tests I ran on the PoC (n=8), timed against the operator’s current spreadsheet flow. Vehicle-off-road figure models their own 2025 incident log through the dashboard.',
+  },
   video: {
     src: `${M}/sign-in-dashboard.webm`,
     poster: `${M}/sign-in-dashboard-poster.jpg`,

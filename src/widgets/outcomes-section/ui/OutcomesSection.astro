@@ -1,0 +1,128 @@
+---
+// The Outcomes section (feat-157): a row of 2-3 big figures saying what the
+// work changed, with an optional line naming how they were measured.
+//
+// Renders between Deliverables and Build, so a case study reads
+// problem -> process -> what I made -> WHAT IT CHANGED -> evidence. On the
+// six pages with no Build/Video/Gallery that position is also "immediately
+// before the Retrospective", so the section lands in the same relative slot
+// on half the site.
+//
+// Deliberately NOT a new visual language: this is entities/stat, the same
+// component BuildSection already runs, lifted into its own section. No new
+// type ramp, no new spacing values, no new colour.
+//
+// ── Why this does not just copy BuildSection's stats row ──────────────────
+// That row is `display: flex; gap: 40px` with entities/stat's own
+// `flex: 1 0 0` doing the sizing, and no wrap. It is fine for CONNECTIS's
+// TWO stats and breaks at THREE, in a band that is easy to miss:
+//
+//   Between 1024px and ~1230px the .section-grid 33/66 split is still
+//   active, so the body column is only ~600px wide. Three 80px numerals
+//   plus their gaps need ~660px. Below 1024px the grid collapses to one
+//   column and the body gets the full width back, so the problem exists
+//   ONLY in that band and disappears again on a phone.
+//
+// The fix is a GRID, not a wrapping flex row. `flex-wrap` plus a 200px
+// flex-basis does NOT solve this — measured at 1100px, where the row stayed
+// on one line at 157px per stat and pushed one label to three lines while
+// its neighbours sat at two. Flex only wraps when items cannot fit at their
+// min-content size, and `flex-shrink: 1` lets them shrink past the basis
+// long before that, so the basis reads as a floor but never acts as one.
+//
+// `repeat(auto-fit, minmax(230px, 1fr))` genuinely wraps: at ~550px it
+// resolves to two columns and the third figure drops to a second row at the
+// same width as the other two, rather than all three crushing. `auto-fit`
+// (not `auto-fill`) collapses the empty track on the two-stat pages, so
+// those stretch to fill the row instead of leaving a hole on the right.
+// It also makes the phone case fall out for free — one column below ~500px
+// of body width — so there is no breakpoint to maintain for it.
+//
+// ── Why no +/- signs on the figures ───────────────────────────────────────
+// A signed figure is ~56px wider at this ramp ("+118%" measures 272px against
+// 216px unsigned), which alone would force the track floor up past the point
+// where three columns fit at 1440px. Direction lives in the label instead
+// ("More course enquiries…", "Fewer P1 tickets…"), which also reads better:
+// the label already carries the before -> after, so the sign was never the
+// thing telling the reader which way the number moved.
+import { Stat } from '@entities/stat';
+import { Heading } from '@shared/ui';
+import type { OutcomesData } from '@entities/project';
+
+interface Props {
+  heading: string;
+  stats: OutcomesData['stats'];
+  note?: string;
+}
+
+const { heading, stats, note } = Astro.props;
+---
+
+<section class="section-grid outcomes-section">
+  <Heading class="section-grid__aside outcomes-section__heading">{heading}</Heading>
+  <div class="section-grid__body outcomes-section__body" data-reveal>
+    <div class="outcomes-section__stats">
+      {
+        stats.map((stat) => (
+          <Stat value={stat.value} unit={stat.unit} label={stat.label} />
+        ))
+      }
+    </div>
+    {note && <p class="outcomes-section__note">{note}</p>}
+  </div>
+</section>
+
+<style>
+  /* Grid, column spans and the 1023px collapse come from .section-grid in
+     global.css (ref-005). */
+  .outcomes-section__body {
+    display: flex;
+    flex-direction: column;
+    /* 24px, not the 64px other section bodies use between their blocks: the
+       note belongs TO the stats above it rather than being a sibling block,
+       and at 64px it floats free of them. */
+    gap: var(--spacing-lg);
+  }
+  .outcomes-section__stats {
+    display: grid;
+    /* See the header comment — this is load-bearing, not cosmetic. 230px is
+       MEASURED, not picked round: the widest figure any page carries is
+       defenceSystems's "240%" at 219px intrinsic (Manrope Medium 80px, tabular-nums,
+       -1.92px tracking, plus the 32px unit), and 230 is the smallest round
+       track that still lets three columns fit the 778px body at 1440px
+       (3x230 + 2x40 = 770). Raising it drops 1440px to a 2+1 layout;
+       lowering it lets the widest figure overflow its track. */
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    /* 40px column gap matches BuildSection's row exactly; the 48px row gap
+       only applies once the stats wrap, and is larger so a wrapped row
+       reads as a new line rather than a ragged continuation. */
+    gap: var(--spacing-2xl) 40px;
+  }
+  /* --color-text-primary, explicitly NOT --color-text-secondary: feat-112
+     retired that token from label text after Max flagged "too many colored
+     texts" fighting the content for attention, and it also measures only
+     4.1:1 against the dark page ground in its muted sibling. This note is
+     subordinate by SIZE, not by hue — text-primary is 12.9:1 dark and
+     13.9:1 light, so the method line stays readable in both themes. */
+  .outcomes-section__note {
+    margin: 0;
+    font-family: var(--font-family-body);
+    font-size: var(--font-size-sm);
+    line-height: var(--font-line-height-sm);
+    font-weight: var(--font-weight-regular);
+    color: var(--color-text-primary);
+    /* The figures can wrap to two rows; the note should not run wider than
+       a comfortable measure underneath them. */
+    max-width: 60ch;
+  }
+
+  @media (max-width: 480px) {
+    /* No `flex-direction: column` here, unlike BuildSection's row — the grid
+       above has already collapsed to a single 1fr track by this width. All
+       this does is close the gap up, since a stacked column does not need
+       the 48px a wrapped grid row does. */
+    .outcomes-section__stats {
+      gap: var(--spacing-lg);
+    }
+  }
+</style>

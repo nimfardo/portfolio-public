@@ -201,6 +201,43 @@ export interface BuildData {
   githubUrl?: string;
 }
 
+/** The Outcomes section: a row of 2-3 big figures with an optional line saying
+ * how they were measured (feat-157).
+ *
+ * Named `OutcomesData`, not `OutcomesSection`, for the same reason `BuildData`
+ * is: the widget that renders it is `OutcomesSection`, and one name for both
+ * would collide at every import site.
+ *
+ * `stats` is structurally StatData but is declared here rather than imported
+ * from entities/stat — entities slices don't import each other, which is the
+ * same reason BuildData carries its own copy of the shape.
+ *
+ * Two constraints on `value` that are NOT style preferences — both are forced
+ * by shared/lib/count-up.ts, which rolls only the FIRST run of digits:
+ *   * Whole numbers only. "2.4" animates as 0.4 -> 1.4 -> 2.4, because the
+ *     regex matches the "2" and leaves ".4" pinned beside it.
+ *   * No before/after arrows. "41->55" would roll the *before* number while
+ *     the after number sat still, which reads backwards.
+ * So the big figure is the CHANGE and the label carries the journey
+ * ("+14" / "Checkout completion, 41% -> 55%"). Signs and zero are safe:
+ * "+18" rolls "+0" -> "+18", and "0" is left alone by the /\d/ guard.
+ *
+ * `unit` renders in a hardcoded 32px inline span (entities/stat), so it stays
+ * <= 3 characters — "%", "pp", "KB", "/5". Anything longer belongs in `label`.
+ *
+ * `note` is required by .context/identity.md Product Principle #2 for any
+ * business-outcome figure: a stat with no method line is filler. It is
+ * optional on the type only because the two showcase pages (Logofolio,
+ * Motion) state countable facts that need no method. */
+export interface OutcomesData {
+  /** "Outcomes" on the ten case studies; "At a glance" on the two showcase
+   * pages, where the figures are counts rather than claims. */
+  heading: string;
+  stats: { value: string; unit?: string; label: string }[];
+  /** How the figures were measured — n, window, source. */
+  note?: string;
+}
+
 /** Full case-study page content. Only hero + overview are universal;
  * every other section renders when present — defenceSystems has no accordion, no
  * video interstitial, and no gallery, while CONNECTIS has them all.
@@ -229,6 +266,9 @@ export interface ProjectContent {
    * (Metest, node 2997:2564 — heading + one line, no image). */
   deliverables?: BlocksSection | StatementSection;
   build?: BuildData;
+  /** Renders between Deliverables and Build — what I made, then what it
+   * changed, then the evidence. */
+  outcomes?: OutcomesData;
   video?: { src: string; poster: string; alt: string };
   gallery?: GalleryRow[];
   retrospective?: {

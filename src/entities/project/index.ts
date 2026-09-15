@@ -17,5 +17,6 @@ export type {
   StatementSection,
   BlocksSection,
   BuildData,
+  OutcomesData,
   ProjectContent,
 } from './model/types';
