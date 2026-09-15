@@ -12,63 +12,68 @@
 // ProjectGrid, so the grid's other consumer (/system's ComponentGallery) never
 // fires it.
 //
-// THE MARK. A real Lottie, authored by us rather than downloaded —
-// `scripts/build-lock-lottie.mjs` generates both theme colourways from
-// locker.svg's own geometry. Two reasons, and the licence one is the hard one:
-// every free Lottie source is blocked for this repo (UseAnimations is CC-BY
-// and forbids redistribution, Lordicon's free tier demands a visible credit,
-// LottieFiles' Simple License forbids distributing the file so it can be
-// downloaded separately — which is exactly what public/media/ plus the public
-// GitHub mirror does). The second reason is that no third-party padlock
-// matches a library of flat, square-capped, 28-box glyphs; ours does, by
-// construction.
+// THE MARK, and why it is inline SVG and not the Lottie this briefly shipped
+// as. dotlottie-wc rasterises to a canvas of CSS-pixels x dpr, so a 24px mark
+// gets a 24x24 buffer and our 2px stroke lands on ~1.7 device pixels — visibly
+// stair-stepped arc, uneven stroke weight, chewed butt caps. Measured, not
+// guessed; resizing the element post-mount does not re-allocate the buffer.
+// Canvas is the wrong renderer for a thin-stroke glyph this small. SVG is
+// resolution-independent, and `currentColor` means ONE asset covers both
+// themes instead of two baked colourways.
 //
-// Two baked JSONs swapped on [data-theme], the AnimatedLogo pattern — Lottie
-// bakes its colours and does not follow custom properties. The static SVG
-// below is the SAME geometry and stays for two jobs: it is the resting frame
-// before the player mounts, and it is the whole mark under reduced motion.
+// THE MOTION is Oleksandr Pronskyi's Lock/Unlock (dribbble.com/shots/2998435),
+// which Max picked, redrawn in our outlined style. Its trick: the shackle
+// RETRACTS DOWN INTO THE BODY, turns while it is hidden, and rises again
+// already open. The body never moves and the arc never swings through open
+// space — which is exactly where the previous attempt read as raw. The
+// reference's body is a solid fill that occludes the shackle; ours is an
+// outline with a hollow interior, so a clipPath at the body's top edge does
+// the occluding instead, with the shackle painted BEFORE the body so the top
+// stroke covers the last units of travel.
 ---
 
 <div class="nda-toast" data-nda-toast hidden role="status" aria-live="polite">
-  <span class="nda-toast__mark" data-nda-toast-mark>
-    {
-      /* locker.svg decoded, not redrawn — the same numbers the generator uses:
-          body    outer 3,12->25,26 against inner 5,14->23,24 = a 2px stroke on
-                  the 4,13 20x12 centreline rect
-          shackle outer r=7 / inner r=5 about (14,9) = a centreline r=6 arc at
-                  stroke-width 2, legs ending flat at y=12 (linecap: butt)
-          slot    the filled 13,18 2x4 rect, unchanged
-        If the icon ever changes, this and the generator both move. */
-    }
-    <svg
-      class="nda-toast__static"
-      viewBox="0 0 28 28"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <rect x="4" y="13" width="20" height="12" stroke="currentColor" stroke-width="2"></rect>
-      <rect class="nda-toast__slot" x="13" y="18" width="2" height="4" fill="currentColor"></rect>
+  {
+    /* locker.svg decoded, not redrawn:
+        body    outer 3,12->25,26 against inner 5,14->23,24 = a 2px stroke on
+                the 4,13 20x12 centreline rect
+        shackle outer r=7 / inner r=5 about (14,9) = a centreline r=6 arc at
+                stroke-width 2, legs ending flat at y=12 (linecap: butt)
+        slot    the filled 13,18 2x4 rect
+      At rest this is that icon to the pixel. The slot does NOT animate — the
+      reference does not turn its keyhole, and one moving part reads cleaner
+      than two. */
+  }
+  <svg class="nda-toast__lock" viewBox="0 0 28 28" fill="none" aria-hidden="true" focusable="false">
+    <defs>
+      <clipPath id="nda-toast-body-clip">
+        {
+          /* Everything above the body's top stroke. Generous on x and upward so
+            the shackle can leave the 28 box as it turns; the only edge that
+            matters is y=14, the bottom of that stroke. */
+        }
+        <rect x="-12" y="-14" width="52" height="28"></rect>
+      </clipPath>
+    </defs>
+    <g clip-path="url(#nda-toast-body-clip)">
       <path
         class="nda-toast__shackle"
         d="M8 12V9a6 6 0 0 1 12 0v3"
         stroke="currentColor"
         stroke-width="2"></path>
-    </svg>
-  </span>
+    </g>
+    {/* After the shackle, so the top stroke paints over it on the way in. */}
+    <rect x="4" y="13" width="20" height="12" stroke="currentColor" stroke-width="2"></rect>
+    <rect x="13" y="18" width="2" height="4" fill="currentColor"></rect>
+  </svg>
   <p class="nda-toast__text">Unlocked — every confidential project is open.</p>
 </div>
 
 <script>
-  import { setWasmUrl } from '@lottiefiles/dotlottie-wc';
-  setWasmUrl('/wasm/dotlottie-player.wasm');
-</script>
-
-<script>
-  import { consumeNdaUnlockToast, prefersReducedMotion } from '@shared/lib';
+  import { consumeNdaUnlockToast } from '@shared/lib';
 
   // Max's call. Long enough to read eleven words twice, and it is measured
-  // from the moment the toast appears, so the ~1.1s of lock animation runs
+  // from the moment the toast appears, so the ~0.9s of lock animation runs
   // inside it rather than before it. Nothing here is interactive.
   const HOLD_MS = 5000;
   // Matches --duration-base, which the leaving animation uses. Kept as a
@@ -83,34 +88,6 @@
     window.clearTimeout(exitTimer);
   }
 
-  // The players are CREATED on unlock, never shipped in the markup, and that
-  // is load-bearing twice over. (1) Cost: almost nobody unlocks, so nobody
-  // else pays for two player instances and two JSON fetches on every visit to
-  // the home page. (2) Correctness: dotlottie-wc sizes its canvas buffer off a
-  // ResizeObserver on its own box, and that observer never fires inside a
-  // `display: none` subtree — the toast is `hidden` until it fires, so a
-  // player mounted in the markup would keep the default 300x150 buffer and
-  // get stretched to fill 24x24 the instant it appeared. Mounting them after
-  // the toast is visible means they are measured at their real size. This is
-  // the same trap AnimatedLogo documents, reached from the other direction.
-  function mountLottie(mark: HTMLElement) {
-    if (mark.dataset.mounted !== undefined) return;
-    mark.dataset.mounted = '';
-    for (const theme of ['dark', 'light'] as const) {
-      const player = document.createElement('dotlottie-wc');
-      player.className = `nda-toast__lottie nda-toast__lottie--${theme}`;
-      player.setAttribute(
-        'src',
-        theme === 'dark' ? '/media/ui/lock-unlock.json' : '/media/ui/lock-unlock-light.json',
-      );
-      // Plays once and holds the last frame: the lock must stay open for the
-      // rest of the hold, so no `loop`.
-      player.setAttribute('autoplay', '');
-      player.setAttribute('aria-hidden', 'true');
-      mark.append(player);
-    }
-  }
-
   function initNdaUnlockToast() {
     const toast = document.querySelector<HTMLElement>('[data-nda-toast]');
     if (!toast) return;
@@ -120,14 +97,10 @@
     if (!consumeNdaUnlockToast()) return;
 
     clearTimers();
+    // Everything inside is `display: none` until this line — which is what
+    // starts the whole animation timeline, keyframe delays included, at the
+    // moment the toast appears rather than at page load.
     toast.removeAttribute('hidden');
-
-    // Under reduced motion the static SVG is the whole mark — CSS renders it
-    // already open — and no player, WASM or JSON is ever fetched.
-    if (!prefersReducedMotion()) {
-      const mark = toast.querySelector<HTMLElement>('[data-nda-toast-mark]');
-      if (mark) mountLottie(mark);
-    }
 
     holdTimer = window.setTimeout(() => {
       toast.classList.add('nda-toast--leaving');
@@ -204,44 +177,60 @@
     color: var(--color-text-emphasis);
   }
 
-  /* One 24px box holding up to three stacked marks — the static SVG plus the
-     two colourways — so the row's height never changes as they swap. */
-  .nda-toast__mark {
-    position: relative;
+  .nda-toast__lock {
     display: block;
     flex-shrink: 0;
     width: 24px;
     height: 24px;
-    /* The static SVG is currentColor; the players carry their colour baked in
-       and ignore this. Both resolve to --color-icon-default either way. */
+    /* The rotated shackle reaches just past the top of the 28 box. */
+    overflow: visible;
     color: var(--color-icon-default);
   }
-  .nda-toast__static,
-  .nda-toast__mark :global(.nda-toast__lottie) {
-    position: absolute;
-    inset: 0;
-    display: block;
-    width: 100%;
-    height: 100%;
+
+  .nda-toast__shackle {
+    /* Flat leg ends, as in the icon. */
+    stroke-linecap: butt;
+    /* fill-box, or the origin resolves against the whole SVG viewport in
+       WebKit. The path's geometry box is x 8..20 / y 3..12, so 0% 100% is the
+       LEFT leg's base (8,12) — the hinge, matching the reference, where the
+       right leg is the one that lifts clear. */
+    transform-box: fill-box;
+    transform-origin: 0% 100%;
+    animation: nda-lock-open 900ms both;
   }
-  /* The shackle leaves the 28 box as it swings; without this the open frames
-     render with it cut off flat. */
-  .nda-toast__static {
-    overflow: visible;
-  }
-  /* Once a player is mounted it owns the mark. `visibility`, not `display` —
-     see the ResizeObserver note in the script. */
-  .nda-toast__mark[data-mounted] .nda-toast__static {
-    visibility: hidden;
-  }
-  .nda-toast__mark :global(.nda-toast__lottie--light) {
-    visibility: hidden;
-  }
-  :global([data-theme='light']) .nda-toast__mark :global(.nda-toast__lottie--dark) {
-    visibility: hidden;
-  }
-  :global([data-theme='light']) .nda-toast__mark :global(.nda-toast__lottie--light) {
-    visibility: visible;
+
+  /* The whole idea, in five stops. 14 units of travel is what it takes to put
+     the shackle fully under the body's top stroke in BOTH orientations: turned
+     -30deg its highest ink sits at y≈0.2, and the clip edge is y=14. Getting
+     that number wrong is the one way this breaks — too little and the arc is
+     visibly still there when it turns. */
+  @keyframes nda-lock-open {
+    /* A beat of stillness first, so the retraction is noticed rather than
+       already underway when the toast finishes sliding in. */
+    0%,
+    15% {
+      transform: translateY(0) rotate(0deg);
+      /* Accelerating: it is being drawn in, not falling. */
+      animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.4);
+    }
+    48% {
+      transform: translateY(14px) rotate(0deg);
+      animation-timing-function: linear;
+    }
+    /* Turns while fully hidden. Invisible by construction, which is why the
+       arc never has to sweep through open space. */
+    54% {
+      transform: translateY(14px) rotate(-30deg);
+      animation-timing-function: cubic-bezier(0.15, 0.7, 0.3, 1);
+    }
+    /* Overshoots by just over a unit on the way out, then sets down. */
+    88% {
+      transform: translateY(-1.2px) rotate(-30deg);
+      animation-timing-function: cubic-bezier(0.4, 0, 0.5, 1);
+    }
+    100% {
+      transform: translateY(0) rotate(-30deg);
+    }
   }
 
   @keyframes nda-toast-in {
@@ -273,27 +262,15 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    /* The toast and its 5s hold stay — the message is the point. No player is
-       ever created, and the static mark renders in its END state: the lock
-       arrives already open rather than opening. The transforms mirror the
-       Lottie's last frame exactly (30deg about the right leg, 1.5px lift). */
+    /* The toast and its 5s hold stay — the message is the point. The lock
+       arrives already open rather than opening, in the keyframe's end pose. */
     .nda-toast,
     .nda-toast--leaving {
       animation: none;
     }
-    .nda-toast__slot {
-      /* The slot's own box is 13..15 / 18..22, so 50% 50% is its centre. */
-      transform-box: fill-box;
-      transform-origin: 50% 50%;
-      transform: rotate(90deg);
-    }
     .nda-toast__shackle {
-      /* fill-box, or the origin resolves against the whole SVG viewport in
-         WebKit. The path's geometry box is x 8..20 / y 3..12, so 100% 100% IS
-         the right leg's base (20,12) — the hinge a real padlock turns on. */
-      transform-box: fill-box;
-      transform-origin: 100% 100%;
-      transform: translateY(-1.5px) rotate(30deg);
+      animation: none;
+      transform: rotate(-30deg);
     }
   }
 </style>
