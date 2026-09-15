@@ -189,16 +189,24 @@ const { heading, image, tags, list, description, features, linkCards, class: cla
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--color-text-emphasis);
-    white-space: nowrap;
-  }
+    /* No `white-space: nowrap`, and no breakpoint re-enabling it (bug-079).
+       A pill wraps exactly when it does not fit and never otherwise, which
+       is what intrinsic sizing already does: these are flex items with the
+       default `min-width: auto`, so each one is laid out at its max-content
+       width while there is room and shrinks toward min-content when there
+       is not. Every pill that fits renders identically to the nowrap
+       version — measured across 11 pages x 14 widths, not assumed.
 
-  @media (max-width: 767px) {
-    /* A single nowrap pill can be wider than a phone screen (defenceSystems's
-       longest tag is ~423px — caught as real 74px page overflow at 375px
-       in feat-033's QA; CONNECTIS's 323px pill only just fit). Let the
-       text wrap inside the pill instead. */
-    .overview-section__tag {
-      white-space: normal;
-    }
+       The rule this replaces was `nowrap` plus `white-space: normal` under
+       767px, which read as "wrap on phones" and was wrong in a way a
+       viewport breakpoint structurally cannot fix: the constraint is the
+       CONTAINER, not the screen. `.section-grid`'s 33/66 split is still
+       active from 1024px up, so the body column there is ~600px — NARROWER
+       than the full-width ~688px it gets at 768px. enterpriseIt's 598px scope tag
+       and Khvyliasti's 584px one therefore overflowed the page at 1024px
+       (57px and 44px) while being perfectly fine on a phone, and no
+       `max-width` breakpoint can express "the container got smaller as the
+       window got bigger". Third time this band has produced a bug — see
+       bug-053 and the Outcomes grid in feat-157. */
   }
 </style>
