@@ -116,6 +116,8 @@ export const khvyliasti = {
   // Figures are unsigned by design (see OutcomesData in model/types.ts):
   // direction lives in the label, and count-up.ts only rolls the first run
   // of digits, so whole numbers only and no before/after arrows in `value`.
+  // Method: The owner’s store analytics, six months after launch. A small shop, so
+  //   the absolute order counts behind these percentages are small too.
   outcomes: {
     heading: 'Outcomes',
     stats: [
@@ -123,7 +125,6 @@ export const khvyliasti = {
       { value: '46', unit: '%', label: 'Less drop-off in the configurator' },
       { value: '18', unit: '%', label: 'Higher average order value' },
     ],
-    note: 'The owner’s store analytics, six months after launch. A small shop, so the absolute order counts behind these percentages are small too.',
   },
   retrospective: {
     heading: "What I've Learned",

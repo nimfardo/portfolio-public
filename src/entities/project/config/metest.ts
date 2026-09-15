@@ -102,6 +102,8 @@ export const metest = {
   // Figures are unsigned by design (see OutcomesData in model/types.ts):
   // direction lives in the label, and count-up.ts only rolls the first run
   // of digits, so whole numbers only and no before/after arrows in `value`.
+  // Method: Quote-form submissions for the six months after launch against the six
+  //   before. Video plays and visitor geography from the client’s analytics.
   outcomes: {
     heading: 'Outcomes',
     stats: [
@@ -109,7 +111,6 @@ export const metest = {
       { value: '48', unit: '%', label: 'Of visitors play the plant footage' },
       { value: '29', unit: '%', label: 'Of quotes from outside Estonia' },
     ],
-    note: 'Quote-form submissions for the six months after launch against the six before. Video plays and visitor geography from the client’s analytics.',
   },
   retrospective: {
     heading: "What I've Learned",

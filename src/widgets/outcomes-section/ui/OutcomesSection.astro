@@ -1,6 +1,16 @@
 ---
 // The Outcomes section (feat-157): a row of 2-3 big figures saying what the
-// work changed, with an optional line naming how they were measured.
+// work changed. Figures and labels only — nothing else.
+//
+// It shipped with a visible method line under the figures (n, window,
+// source) and Max cut it in review: at 14px across three lines it read as a
+// slab of small coloured text under the numbers. It is not restylable on
+// this palette either — the only token less saturated than the figures'
+// --color-text-primary is --color-text-emphasis, which is BRIGHTER than
+// them, so demoting the note by colour would have promoted it instead. The
+// method is now a `// Method:` comment above each config's outcomes block;
+// see .context/identity.md Product Principle #2, which requires it to be
+// recorded rather than rendered.
 //
 // Renders between Deliverables and Build, so a case study reads
 // problem -> process -> what I made -> WHAT IT CHANGED -> evidence. On the
@@ -18,8 +28,8 @@
 // TWO stats and breaks at THREE, in a band that is easy to miss:
 //
 //   Between 1024px and ~1230px the .section-grid 33/66 split is still
-//   active, so the body column is only ~600px wide. Three 80px numerals
-//   plus their gaps need ~660px. Below 1024px the grid collapses to one
+//   active, so the body column is only ~600px wide. Three 96px numerals
+//   plus their gaps need ~750px. Below 1024px the grid collapses to one
 //   column and the body gets the full width back, so the problem exists
 //   ONLY in that band and disappears again on a phone.
 //
@@ -40,7 +50,7 @@
 //
 // ── Why no +/- signs on the figures ───────────────────────────────────────
 // A signed figure is ~56px wider at this ramp ("+118%" measures 272px against
-// 216px unsigned), which alone would force the track floor up past the point
+// ~216px unsigned), which alone would force the track floor up past the point
 // where three columns fit at 1440px. Direction lives in the label instead
 // ("More course enquiries…", "Fewer P1 tickets…"), which also reads better:
 // the label already carries the before -> after, so the sign was never the
@@ -52,42 +62,32 @@ import type { OutcomesData } from '@entities/project';
 interface Props {
   heading: string;
   stats: OutcomesData['stats'];
-  note?: string;
 }
 
-const { heading, stats, note } = Astro.props;
+const { heading, stats } = Astro.props;
 ---
 
 <section class="section-grid outcomes-section">
   <Heading class="section-grid__aside outcomes-section__heading">{heading}</Heading>
-  <div class="section-grid__body outcomes-section__body" data-reveal>
-    <div class="outcomes-section__stats">
-      {
-        stats.map((stat) => (
-          <Stat value={stat.value} unit={stat.unit} label={stat.label} />
-        ))
-      }
-    </div>
-    {note && <p class="outcomes-section__note">{note}</p>}
+  <div class="section-grid__body outcomes-section__stats" data-reveal>
+    {
+      stats.map((stat) => (
+        <Stat value={stat.value} unit={stat.unit} label={stat.label} />
+      ))
+    }
   </div>
 </section>
 
 <style>
   /* Grid, column spans and the 1023px collapse come from .section-grid in
-     global.css (ref-005). */
-  .outcomes-section__body {
-    display: flex;
-    flex-direction: column;
-    /* 24px, not the 64px other section bodies use between their blocks: the
-       note belongs TO the stats above it rather than being a sibling block,
-       and at 64px it floats free of them. */
-    gap: var(--spacing-lg);
-  }
+     global.css (ref-005). The stats grid IS the section body now — with the
+     method line gone there is no second child to stack, so the wrapper flex
+     column it used to need went with it. */
   .outcomes-section__stats {
     display: grid;
     /* See the header comment — this is load-bearing, not cosmetic. 230px is
        MEASURED, not picked round: the widest figure any page carries is
-       defenceSystems's "240%" at 219px intrinsic (Manrope Medium 80px, tabular-nums,
+       defenceSystems's "240%" at 219px intrinsic (Manrope Medium 96px, tabular-nums,
        -1.92px tracking, plus the 32px unit), and 230 is the smallest round
        track that still lets three columns fit the 778px body at 1440px
        (3x230 + 2x40 = 770). Raising it drops 1440px to a 2+1 layout;
@@ -100,25 +100,32 @@ const { heading, stats, note } = Astro.props;
        1100px, where CONNECTIS wraps 2+1). */
     gap: var(--spacing-xl) 40px;
   }
-  /* --color-text-primary, explicitly NOT --color-text-secondary: feat-112
-     retired that token from label text after Max flagged "too many colored
-     texts" fighting the content for attention, and it also measures only
-     4.1:1 against the dark page ground in its muted sibling. This note is
-     subordinate by SIZE, not by hue — text-primary is 12.9:1 dark and
-     13.9:1 light, so the method line stays readable in both themes. */
-  .outcomes-section__note {
-    margin: 0;
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-sm);
-    line-height: var(--font-line-height-sm);
-    font-weight: var(--font-weight-regular);
-    color: var(--color-text-primary);
-    /* The figures can wrap to two rows; the note should not run wider than
-       a comfortable measure underneath them. */
-    max-width: 60ch;
+  /* Balance: every label reserves two lines, so the figures in a row all
+     bottom-align instead of stepping (measured at 1280px, where CONNECTIS
+     rendered 2L/1L/1L and the block read as ragged). Two lines is the right
+     reservation rather than three — every label on the site is written to
+     fit two at the 230px track floor, which is what the trims in copy-046
+     were for. :global() because the label lives inside entities/stat, which
+     carries its own astro-cid.
+
+     Dropped below 480px: the grid is a single column there, so there is
+     nothing to align against and the reservation would only add dead space
+     under the shorter labels. */
+  :global(.outcomes-section__stats .stat__label) {
+    min-height: calc(2 * var(--font-line-height-xl));
+    /* Evens the two lines instead of filling line one and orphaning whatever
+       is left ("Task success, up from" / "58%"). Scoped to these labels
+       rather than entities/stat, because BuildSection's labels are short
+       enough to sit on one line and balancing a single line is a no-op.
+       Unsupported browsers just get the greedy wrap this replaces. */
+    text-wrap: balance;
   }
 
   @media (max-width: 480px) {
+    :global(.outcomes-section__stats .stat__label) {
+      min-height: 0;
+    }
+
     /* No `flex-direction: column` here, unlike BuildSection's row — the grid
        above has already collapsed to a single 1fr track by this width. All
        this does is close the gap up, since a stacked column does not need

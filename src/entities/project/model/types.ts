@@ -225,17 +225,20 @@ export interface BuildData {
  * `unit` renders in a hardcoded 32px inline span (entities/stat), so it stays
  * <= 3 characters — "%", "pp", "KB", "/5". Anything longer belongs in `label`.
  *
- * `note` is required by .context/identity.md Product Principle #2 for any
- * business-outcome figure: a stat with no method line is filler. It is
- * optional on the type only because the two showcase pages (Logofolio,
- * Motion) state countable facts that need no method. */
+ * There is deliberately NO `note` field. The method behind each figure is
+ * required by .context/identity.md Product Principle #2, but it is recorded
+ * in a `// Method:` comment above each config's `outcomes` block rather than
+ * rendered: as a visible 14px line it read as a slab of small coloured text
+ * under the figures, and this palette offers no lower-emphasis token to
+ * demote it to (the only less-saturated one is brighter than the figures).
+ * It is a comment rather than an unrendered field on purpose — this codebase
+ * already carries a scar from `ProjectContent.name`, a field nothing read
+ * that a comment nonetheless described as rendered output. */
 export interface OutcomesData {
   /** "Outcomes" on the ten case studies; "At a glance" on the two showcase
    * pages, where the figures are counts rather than claims. */
   heading: string;
   stats: { value: string; unit?: string; label: string }[];
-  /** How the figures were measured — n, window, source. */
-  note?: string;
 }
 
 /** Full case-study page content. Only hero + overview are universal;

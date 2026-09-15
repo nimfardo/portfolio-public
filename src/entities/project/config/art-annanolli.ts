@@ -102,13 +102,14 @@ export const artAnnanolli = {
   // Figures are unsigned by design (see OutcomesData in model/types.ts):
   // direction lives in the label, and count-up.ts only rolls the first run
   // of digits, so whole numbers only and no before/after arrows in `value`.
+  // Method: I built the site on Webflow, so the analytics were mine. Form
+  //   submissions over sessions, measured before and after launch.
   outcomes: {
     heading: 'Outcomes',
     stats: [
       { value: '6', unit: '%', label: 'Contact-form conversion, up from 2%' },
       { value: '118', unit: '%', label: 'More course enquiries, first six months' },
     ],
-    note: 'I built the site on Webflow, so the analytics were mine. Form submissions over sessions, measured before and after launch.',
   },
   // The `split` shape CONNECTIS, medicalSoftware and Arvus all use. Tall slot is a
   // video (feat-041); both stacked slots carry real alt text, like every other
