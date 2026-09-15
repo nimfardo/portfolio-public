@@ -178,7 +178,7 @@ export const connectis = {
   outcomes: {
     heading: 'Outcomes',
     stats: [
-      { value: '68', unit: '%', label: 'Faster incident triage, 7.9 → 2.4 min' },
+      { value: '68', unit: '%', label: 'Faster incident triage, 7.9 → 2.4 min' },
       { value: '92', unit: '%', label: 'Task success, up from 58%' },
       { value: '31', unit: '%', label: 'Fewer vehicle-off-road days' },
     ],

@@ -98,6 +98,19 @@ export const metest = {
     heading: 'Deliverables',
     text: 'Hi-fi designs at three breakpoints, UI motion, and design support through the build.',
   } satisfies StatementSection,
+  // Renders after Deliverables, before whatever evidence this page carries.
+  // Figures are unsigned by design (see OutcomesData in model/types.ts):
+  // direction lives in the label, and count-up.ts only rolls the first run
+  // of digits, so whole numbers only and no before/after arrows in `value`.
+  outcomes: {
+    heading: 'Outcomes',
+    stats: [
+      { value: '57', unit: '%', label: 'More quote requests a month, 21 → 33' },
+      { value: '48', unit: '%', label: 'Of visitors play the plant footage' },
+      { value: '29', unit: '%', label: 'Of quotes from outside Estonia' },
+    ],
+    note: 'Quote-form submissions for the six months after launch against the six before. Video plays and visitor geography from the client’s analytics.',
+  },
   retrospective: {
     heading: "What I've Learned",
     text: "Footage of the machines proves more than any layout can. I built the homepage around the video team's clips and let them carry it.",

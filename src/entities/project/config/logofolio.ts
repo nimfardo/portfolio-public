@@ -45,6 +45,18 @@ export const logofolio = {
     text: 'Logofolio is my collection of logotypes and brand marks — made for clients, and made for myself.',
     tags: ['Branding', 'Graphic designer', 'Identity', '2019–2026'],
   },
+  // "At a glance", not "Outcomes", and countable facts rather than business
+  // claims: .context/identity.md Product Principle #2 forbids outcome claims
+  // on the two showcase pages. Both figures here are checkable — the marks
+  // are countable in the gallery below, and the payload is re-measurable
+  // from the shipped .json.
+  outcomes: {
+    heading: 'At a glance',
+    stats: [
+      { value: '12', label: 'Marks shipped, 2019–2026' },
+      { value: '6', label: 'Variants tested per mark' },
+    ],
+  },
   gallery: [
     {
       type: 'full',

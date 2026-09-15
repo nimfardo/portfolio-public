@@ -93,10 +93,12 @@ const { heading, stats, note } = Astro.props;
        (3x230 + 2x40 = 770). Raising it drops 1440px to a 2+1 layout;
        lowering it lets the widest figure overflow its track. */
     grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    /* 40px column gap matches BuildSection's row exactly; the 48px row gap
-       only applies once the stats wrap, and is larger so a wrapped row
-       reads as a new line rather than a ragged continuation. */
-    gap: var(--spacing-2xl) 40px;
+    /* 40px column gap matches BuildSection's row exactly. The 32px row gap
+       only applies once the stats wrap; it was 48px first, which left the
+       lone third figure on row two reading as detached from the pair above
+       it rather than as part of the same set (checked on screenshots at
+       1100px, where CONNECTIS wraps 2+1). */
+    gap: var(--spacing-xl) 40px;
   }
   /* --color-text-primary, explicitly NOT --color-text-secondary: feat-112
      retired that token from label text after Max flagged "too many colored

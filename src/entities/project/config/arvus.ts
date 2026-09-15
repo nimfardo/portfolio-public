@@ -107,6 +107,19 @@ export const arvus = {
       },
     ] satisfies ContentBlock[],
   },
+  // Renders after Deliverables, before whatever evidence this page carries.
+  // Figures are unsigned by design (see OutcomesData in model/types.ts):
+  // direction lives in the label, and count-up.ts only rolls the first run
+  // of digits, so whole numbers only and no before/after arrows in `value`.
+  outcomes: {
+    heading: 'Outcomes',
+    stats: [
+      { value: '44', unit: '%', label: 'Faster critical acknowledge, n=5' },
+      { value: '67', unit: '%', label: 'Shorter onboarding, 3 days → 1' },
+      { value: '5', unit: '/5', label: 'Operators finished unassisted' },
+    ],
+    note: 'From the five moderated sessions named in the Process section — a small sample, and I say so. Onboarding from the integrator’s training schedule before and after.',
+  },
   // Figma's Frame 14 (node 2587:4617) is the tall-plus-two-stacked shape
   // CONNECTIS and medicalSoftware already use. The tall slot is a video here — the
   // first one any gallery has held (feat-041). There is deliberately no

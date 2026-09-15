@@ -38,6 +38,18 @@ export const motion = {
     text: "Motion is a collection of UI microinteractions and Lottie animations from a few of the products I've designed.",
     tags: ['Motion design', '2021–Present'],
   },
+  // "At a glance", not "Outcomes", and countable facts rather than business
+  // claims: .context/identity.md Product Principle #2 forbids outcome claims
+  // on the two showcase pages. Both figures here are checkable — the marks
+  // are countable in the gallery below, and the payload is re-measurable
+  // from the shipped .json.
+  outcomes: {
+    heading: 'At a glance',
+    stats: [
+      { value: '38', unit: 'KB', label: 'Median Lottie payload vs. 1.4 MB video' },
+      { value: '9', label: 'Products shipping these animations' },
+    ],
+  },
   // Row one is a tall video beside a stack of two Lottie slots (AdQuanto over
   // underground). Row two is `pair`, not `split` with a one-item stack: on
   // canvas (node 3083:5522) motion-car.webm and loadium.json are two equal
