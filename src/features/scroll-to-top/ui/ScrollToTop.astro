@@ -102,7 +102,16 @@ const { class: className } = Astro.props;
     width: 60px;
     height: 60px;
     border: none;
-    background: var(--color-bg-default);
+    /* Same frosted treatment as the PageHeader / mobile nav header — see
+       PageHeader.astro for why the tint is color-mixed off the theme token
+       rather than pinned as a second palette. Those two animate from a
+       transparent tint into this one because they exist at rest; this button
+       does not appear until the reader is a full viewport down, so it is only
+       ever seen in the scrolled state and takes those values flat. The blur
+       stays inside the 60x60 border box, which is the same box the progress
+       ring's rect traces, so the two edges line up. */
+    background: color-mix(in srgb, var(--color-bg-default) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(180%);
     color: var(--color-text-accent);
     cursor: pointer;
     opacity: 0;
