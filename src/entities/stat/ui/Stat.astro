@@ -30,7 +30,9 @@ const { value, unit, label, class: className } = Astro.props;
     gap: 4px;
     min-width: 0;
     /* Figma's real text style: text-primary, mixed case, no tracking —
-       the old 5xl/bold/uppercase/text-emphasis treatment didn't match. */
+       the old 5xl/bold/uppercase/text-emphasis treatment didn't match.
+       Inherited by .stat__value and .stat__unit; .stat__label overrides it
+       below (copy-047) and no longer takes this. */
     color: var(--color-text-primary);
   }
   .stat__value {
@@ -55,11 +57,30 @@ const { value, unit, label, class: className } = Astro.props;
     line-height: 48px;
     letter-spacing: -0.32px;
   }
+  /* --color-text-emphasis, not the --color-text-primary the rest of the
+     component inherits (copy-047). Max called the amber labels sitting under
+     the figures "colored small texts" in review and asked for emphasis
+     across the board.
+
+     The obvious objection is that emphasis is BRIGHTER than primary
+     (#faeee1 vs #efcba6 on dark), so this makes the small text lighter than
+     the big figure above it. It does, and it still reads correctly: at 20px
+     against a 96px numeral the size difference carries the hierarchy on its
+     own, and a ~4:1 area ratio is not something a few points of luminance
+     can invert. That objection DID hold for the 14px method line this
+     replaced (see OutcomesSection), which is why that one was cut instead
+     of recoloured — three tiers is where the palette ran out, not two.
+
+     Set here rather than in OutcomesSection so BuildSection's stat row on
+     the same CONNECTIS page matches it; scoping it to one consumer is how
+     the component would have ended up rendering two different ways on one
+     page. Measured 17.20:1 dark and 16.79:1 light, up from 12.88/13.90. */
   .stat__label {
     margin: 0;
     font-family: var(--font-family-body);
     font-size: var(--font-size-xl);
     line-height: var(--font-line-height-xl);
     font-weight: var(--font-weight-regular);
+    color: var(--color-text-emphasis);
   }
 </style>
