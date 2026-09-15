@@ -32,8 +32,8 @@
   }
   <svg
     class="nda-toast__lock"
-    width="32"
-    height="32"
+    width="24"
+    height="24"
     viewBox="0 0 28 28"
     fill="none"
     aria-hidden="true"
@@ -121,9 +121,12 @@
     z-index: 600;
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
+    /* Same icon+text row the NDA card badge uses: 8px gap, --color-icon-default.
+       Height is the 24px icon plus 8px either side = 40px; the 14px/20px text
+       sits inside that and never governs it. */
+    gap: var(--spacing-sm);
     max-width: calc(100vw - 48px);
-    padding: var(--spacing-md) var(--spacing-lg);
+    padding: var(--spacing-sm) var(--spacing-md);
     /* No border and no radius: the site is square everywhere except the theme
        toggle, and the plate carries itself on --color-bg-muted against
        --color-bg-default in both themes. */
