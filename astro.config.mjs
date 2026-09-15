@@ -27,7 +27,9 @@ export default defineConfig({
       // CSS-hidden HTML, which Google indexed, client names and all. A
       // broken build is the strictly better outcome. Set it in `.env`
       // locally and in Netlify's build environment.
-      NDA_PASSWORD: envField.string({ context: 'server', access: 'secret' }),
+      // Optional in this public mirror: it ships no gated projects, so nothing
+      // reads this. Required in the private source repo.
+      NDA_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   // Local-DX preference: the dev toolbar is the floating pill Astro injects at
