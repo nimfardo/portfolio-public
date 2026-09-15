@@ -116,15 +116,17 @@ export const arvus = {
   // of digits, so whole numbers only and no before/after arrows in `value`.
   // Method: (was carried inline as "n=5" in a label until copy-046 — it
   //   was the only page doing that once the rendered notes went.)
-  //   From the five moderated sessions named in the Process section — a
-  //   small sample, and I say so. Onboarding from the integrator’s training
-  //   schedule before and after.
+  //   Response time from the five moderated sessions named in the Process
+  //   section — a small sample, and I say so. Onboarding from the
+  //   integrator’s training schedule before and after.
+  // Cut to two (copy-048): dropped "5 of 5 Operators finished unassisted".
+  //   Smallest signal of the three. The Challenge names alert fatigue and a
+  //   steep learning curve; the two kept answer those.
   outcomes: {
     heading: 'Outcomes',
     stats: [
       { value: '44', unit: '%', label: 'Faster response to critical alerts' },
       { value: '67', unit: '%', label: 'Shorter onboarding, 3 days → 1' },
-      { value: '5', unit: 'of 5', label: 'Operators finished unassisted' },
     ],
   },
   // Figma's Frame 14 (node 2587:4617) is the tall-plus-two-stacked shape

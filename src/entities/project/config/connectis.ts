@@ -175,15 +175,18 @@ export const connectis = {
   // `build.stats` above stay where they are: 394 commits and a 76 KB bundle
   // are craft metrics about the build, and they belong beside the build
   // footage, not in a section about what the product did for the operator.
-  // Method: Triage and task success from moderated tests I ran on the PoC (n=8),
-  //   timed against the operator’s current spreadsheet flow.
-  //   Vehicle-off-road figure models their own 2025 incident log through the
-  //   dashboard.
+  // Method: Triage time from moderated tests I ran on the PoC (n=8), timed
+  //   against the operator’s current spreadsheet flow. Vehicle-off-road
+  //   figure models their own 2025 incident log through the dashboard —
+  //   modelled, not measured in production, and it must be said that way.
+  // Cut to two (copy-048): dropped "92% Task success, up from 58%". The
+  //   Challenge asks for prioritized actions that prevent downtime, and the
+  //   two kept answer exactly that; task success is a usability measure with
+  //   the weakest tie to it.
   outcomes: {
     heading: 'Outcomes',
     stats: [
-      { value: '68', unit: '%', label: 'Faster incident triage, 7.9 → 2.4 min' },
-      { value: '92', unit: '%', label: 'Task success, up from 58%' },
+      { value: '68', unit: '%', label: 'Faster triage, 7.9 → 2.4 min' },
       { value: '31', unit: '%', label: 'Fewer days with vehicles off road' },
     ],
   },

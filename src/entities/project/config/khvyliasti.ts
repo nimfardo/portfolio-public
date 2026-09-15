@@ -118,11 +118,13 @@ export const khvyliasti = {
   // of digits, so whole numbers only and no before/after arrows in `value`.
   // Method: The owner’s store analytics, six months after launch. A small shop, so
   //   the absolute order counts behind these percentages are small too.
+  // Cut to two (copy-048): dropped "46% Less drop-off in the configurator".
+  //   Same funnel as checkout completion, so the two together double-counted
+  //   one improvement. Completion plus order value are independent.
   outcomes: {
     heading: 'Outcomes',
     stats: [
       { value: '14', unit: 'pp', label: 'Checkout completion, 41% → 55%' },
-      { value: '46', unit: '%', label: 'Less drop-off in the configurator' },
       { value: '18', unit: '%', label: 'Higher average order value' },
     ],
   },

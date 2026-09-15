@@ -107,8 +107,8 @@ export const artAnnanolli = {
   outcomes: {
     heading: 'Outcomes',
     stats: [
-      { value: '6', unit: '%', label: 'Contact-form conversion, up from 2%' },
-      { value: '118', unit: '%', label: 'More course enquiries, first six months' },
+      { value: '6', unit: '%', label: 'Contact conversion, up from 2%' },
+      { value: '118', unit: '%', label: 'More course enquiries, 6 months' },
     ],
   },
   // The `split` shape CONNECTIS, medicalSoftware and Arvus all use. Tall slot is a

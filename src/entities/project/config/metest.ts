@@ -102,14 +102,16 @@ export const metest = {
   // Figures are unsigned by design (see OutcomesData in model/types.ts):
   // direction lives in the label, and count-up.ts only rolls the first run
   // of digits, so whole numbers only and no before/after arrows in `value`.
-  // Method: Quote-form submissions for the six months after launch against the six
-  //   before. Video plays and visitor geography from the client’s analytics.
+  // Method: Quote-form submissions for the six months after launch against the
+  //   six before. Video plays from the client’s analytics.
+  // Cut to two (copy-048): dropped "29% Of quotes from outside Estonia". The
+  //   two kept are the business result and the evidence for the closing
+  //   line — that the machine footage, not the layout, does the selling.
   outcomes: {
     heading: 'Outcomes',
     stats: [
-      { value: '57', unit: '%', label: 'More quote requests a month, 21 → 33' },
+      { value: '57', unit: '%', label: 'More quote requests, 21 → 33' },
       { value: '48', unit: '%', label: 'Of visitors play the plant footage' },
-      { value: '29', unit: '%', label: 'Of quotes from outside Estonia' },
     ],
   },
   retrospective: {

@@ -46,8 +46,8 @@ export const motion = {
   outcomes: {
     heading: 'At a glance',
     stats: [
-      { value: '38', unit: 'KB', label: 'Median Lottie payload vs. 1.4 MB video' },
-      { value: '9', label: 'Products shipping these animations' },
+      { value: '38', unit: 'KB', label: 'Median Lottie payload, vs 1.4 MB' },
+      { value: '9', label: 'Products shipping these loops' },
     ],
   },
   // Row one is a tall video beside a stack of two Lottie slots (AdQuanto over
