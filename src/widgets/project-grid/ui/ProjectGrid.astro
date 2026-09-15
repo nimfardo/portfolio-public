@@ -2,6 +2,30 @@
 import { PROJECTS } from '@entities/project';
 import { staggerDelay } from '@shared/lib';
 import ProjectCard from './ProjectCard.astro';
+import ProjectCardEmpty from './ProjectCardEmpty.astro';
+
+// A last row that doesn't fill leaves dead space beside it (13 projects = one
+// lone card on the fifth row). Figma's answer is the project-card `state=empty`
+// variant repeated to complete the row — canvas node 3078:4506 shows the real
+// card followed by two of them.
+//
+// The count is derived, never literal, because the column count is responsive:
+// the same 13 cards leave 2 empty slots at 3 columns, 1 at 2 columns, and none
+// at 1 column (mobile, which has no gap to fill and gets no fillers at all).
+// `cols` records which column counts a given filler is needed at, and
+// ProjectCardEmpty hides itself at the others. Add a 14th project and this
+// corrects itself with no edit here.
+const count = PROJECTS.length;
+const fillersAt3 = (3 - (count % 3)) % 3;
+const fillersAt2 = (2 - (count % 2)) % 2;
+const fillers = Array.from({ length: Math.max(fillersAt3, fillersAt2) }, (_, i) => {
+  const cols: string[] = [];
+  if (i < fillersAt3) cols.push('3');
+  if (i < fillersAt2) cols.push('2');
+  // Continues the cards' own row-wise stagger (index % 3) rather than
+  // restarting it, so a filler rises with the real card beside it.
+  return { cols: cols.join(' '), delay: staggerDelay(count + i, 80, 3) };
+});
 ---
 
 <div class="project-grid" data-project-grid>
@@ -10,6 +34,7 @@ import ProjectCard from './ProjectCard.astro';
       <ProjectCard project={project} revealDelay={staggerDelay(i, 80, 3)} eager={i < 3} />
     ))
   }
+  {fillers.map((filler) => <ProjectCardEmpty cols={filler.cols} revealDelay={filler.delay} />)}
 </div>
 
 <script>

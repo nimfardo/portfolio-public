@@ -1,0 +1,99 @@
+---
+interface Props {
+  /**
+   * Space-separated list of the grid column counts this filler is needed at
+   * ('3 2', '3', ...). Built by ProjectGrid, read by the breakpoint rules
+   * below — a filler that completes the 3-column row is surplus once the
+   * grid drops to 2 columns.
+   */
+  cols: string;
+  revealDelay?: string;
+}
+
+const { cols, revealDelay } = Astro.props;
+---
+
+<div
+  class="project-card-empty"
+  data-cols={cols}
+  data-reveal
+  aria-hidden="true"
+  style={revealDelay ? `--reveal-delay: ${revealDelay}` : undefined}
+>
+  <svg viewBox="0 0 515 400" preserveAspectRatio="none">
+    <rect x="0.25" y="0.25" width="514.5" height="399.5" vector-effect="non-scaling-stroke"></rect>
+    <path d="M0 400L515 0" vector-effect="non-scaling-stroke"></path>
+  </svg>
+</div>
+
+<style>
+  /* Figma's `project-card` state=empty variant (component 2006:375) — the
+     placeholder that completes a partial last row instead of leaving dead
+     space beside it. Purely decorative: aria-hidden, not a link, not
+     focusable, and excluded from ProjectGrid's hover wiring by class name
+     (that script queries `.project-card`).
+
+     Hidden by default and shown per breakpoint, because the number of empty
+     slots changes with the column count — see ProjectGrid's `fillers`. The
+     widths here mirror ProjectGrid's own grid-template-columns breakpoints;
+     that file is the source of truth if they ever move. The 1-column mobile
+     layout is never given fillers, so it needs no rule.
+
+     These rules live here rather than in ProjectGrid because Astro scopes a
+     component's styles to the elements in its own template — `.project-card-empty`
+     written in ProjectGrid.astro would compile to a selector that never
+     matches. Same reason ProjectCard.astro owns its own hover rules. */
+  .project-card-empty {
+    display: none;
+    /* Not the grid's default `stretch`: that grows the outline to the full
+       row height, which includes the sibling cards' 16px gap and name
+       footer, so its bottom edge would sit ~44px below their thumbnails'.
+       The outline is meant to match the image area exactly. */
+    align-self: start;
+    /* Same box as .project-card__media. */
+    aspect-ratio: 515 / 400;
+    pointer-events: none;
+    /* #A6621D on canvas. Bound to the token, not pinned to the hex, so the
+       outline flips with the theme like every other surface — there is no
+       --color-border-muted, and icon/text-muted are the same amber-500 step. */
+    color: var(--color-icon-muted);
+    transition: opacity var(--duration-base) var(--ease-fade);
+  }
+
+  @media (min-width: 1024px) {
+    .project-card-empty[data-cols~='3'] {
+      display: block;
+    }
+  }
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .project-card-empty[data-cols~='2'] {
+      display: block;
+    }
+  }
+
+  /* Geometry is Figma's own export of the variant's `image` node (2006:376),
+     unchanged. `non-scaling-stroke` keeps the hairline a true 0.5px at every
+     card width — scaled normally it thins toward invisible in /system's
+     narrow gallery column — and `overflow: visible` stops the SVG viewport
+     clipping the outer half of that stroke once the inset no longer covers
+     it. `preserveAspectRatio: none` keeps the diagonal corner-to-corner if a
+     consumer ever gives the box a different ratio. */
+  .project-card-empty svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 0.5;
+  }
+
+  /* Dims with its siblings when a real card is hovered — the fillers are part
+     of the same visual field, and leaving them lit read as them being the
+     thing in focus. Trigger and gating match ProjectCard's own media rule. */
+  @media (hover: hover) and (pointer: fine) {
+    :global(.project-grid--card-hover) .project-card-empty {
+      opacity: 0.4;
+    }
+  }
+</style>
